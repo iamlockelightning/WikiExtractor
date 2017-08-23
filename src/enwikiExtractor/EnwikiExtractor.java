@@ -17,10 +17,11 @@ import org.jsoup.select.Elements;
 public class EnwikiExtractor {
 
 	public static void main(String args[]) throws Exception {
-		EnwikiExtractor ze = new EnwikiExtractor();
+		EnwikiExtractor ee = new EnwikiExtractor();
 		Date start_date = new Date();
 		System.out.println("Extraction starts at:" + start_date);
-		ze.test("/Users/locke/Downloads/a.txt");
+//		ee.test("/Users/locke/Downloads/a.txt");
+		ee.test("/home/lcj/enwiki-latest-pages-articles-multistream.xml");
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
 		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");
