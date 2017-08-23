@@ -1,4 +1,4 @@
-package zhwikiExtractor;
+package enwikiExtractor;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,10 +14,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class ZhwikiExtractor {
+public class EnwikiExtractor {
 
 	public static void main(String args[]) throws Exception {
-		ZhwikiExtractor ze = new ZhwikiExtractor();
+		EnwikiExtractor ze = new EnwikiExtractor();
 		Date start_date = new Date();
 		System.out.println("Extraction starts at:" + start_date);
 		ze.test("/Users/locke/Downloads/a.txt");
