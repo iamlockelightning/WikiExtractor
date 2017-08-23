@@ -81,7 +81,9 @@ public class EnwikiExtractor {
             			if (s.startsWith("|")) {
             				temp_list.add(s);
             			} else if (s.startsWith("*")) {
-            				temp_list.add(temp_list.remove(temp_list.size()-1) + " " + s);
+            				if (temp_list.size() != 0) {
+            					temp_list.add(temp_list.remove(temp_list.size()-1) + " " + s);
+            				}
             			}
             		}
             		for (String s : temp_list) {
