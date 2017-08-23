@@ -59,6 +59,16 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
+    <target name="New_configuration">
+        <java classname="" failonerror="true" fork="yes">
+            <classpath refid="WikiExtractor.classpath"/>
+        </java>
+    </target>
+    <target name="ZhwikiExtractor">
+        <java classname="enwikiExtractor.ZhwikiExtractor" failonerror="true" fork="yes">
+            <classpath refid="WikiExtractor.classpath"/>
+        </java>
+    </target>
     <target name="EnwikiExtractor">
         <java classname="enwikiExtractor.EnwikiExtractor" failonerror="true" fork="yes">
             <classpath refid="WikiExtractor.classpath"/>
