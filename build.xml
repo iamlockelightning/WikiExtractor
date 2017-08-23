@@ -10,18 +10,18 @@
     <property name="source" value="1.8"/>
     <path id="WikiExtractor.classpath">
         <pathelement location="bin"/>
-        <pathelement location="../Xlore2.0/lib/commons-collections4-4.1.jar"/>
-        <pathelement location="../Xlore2.0/lib/commons-lang3-3.4.jar"/>
-        <pathelement location="../Xlore2.0/lib/curvesapi-1.04.jar"/>
-        <pathelement location="../Xlore2.0/lib/json-20160810.jar"/>
-        <pathelement location="../Xlore2.0/lib/jsoup-1.9.2.jar"/>
-        <pathelement location="../Xlore2.0/lib/poi-3.15.jar"/>
-        <pathelement location="../Xlore2.0/lib/poi-examples-3.15.jar"/>
-        <pathelement location="../Xlore2.0/lib/poi-excelant-3.15.jar"/>
-        <pathelement location="../Xlore2.0/lib/poi-ooxml-3.15.jar"/>
-        <pathelement location="../Xlore2.0/lib/poi-ooxml-schemas-3.15.jar"/>
-        <pathelement location="../Xlore2.0/lib/poi-scratchpad-3.15.jar"/>
-        <pathelement location="../Xlore2.0/lib/xmlbeans-2.6.0.jar"/>
+        <pathelement location="lib/commons-collections4-4.1.jar"/>
+        <pathelement location="lib/commons-lang3-3.4.jar"/>
+        <pathelement location="lib/curvesapi-1.04.jar"/>
+        <pathelement location="lib/json-20160810.jar"/>
+        <pathelement location="lib/jsoup-1.9.2.jar"/>
+        <pathelement location="lib/poi-3.15.jar"/>
+        <pathelement location="lib/poi-examples-3.15.jar"/>
+        <pathelement location="lib/poi-excelant-3.15.jar"/>
+        <pathelement location="lib/poi-ooxml-3.15.jar"/>
+        <pathelement location="lib/poi-ooxml-schemas-3.15.jar"/>
+        <pathelement location="lib/poi-scratchpad-3.15.jar"/>
+        <pathelement location="lib/xmlbeans-2.6.0.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -59,13 +59,8 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="New_configuration">
-        <java classname="" failonerror="true" fork="yes">
-            <classpath refid="WikiExtractor.classpath"/>
-        </java>
-    </target>
-    <target name="ZhwikiExtractor">
-        <java classname="zhwikiExtractor.ZhwikiExtractor" failonerror="true" fork="yes">
+    <target name="EnwikiExtractor">
+        <java classname="enwikiExtractor.EnwikiExtractor" failonerror="true" fork="yes">
             <classpath refid="WikiExtractor.classpath"/>
         </java>
     </target>
