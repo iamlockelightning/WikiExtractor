@@ -1,4 +1,4 @@
-package enwikiExtractor;
+package zhwikiExtractor;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,14 +14,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class EnwikiExtractor {
+public class ZhwikiExtractor {
 
 	public static void main(String args[]) throws Exception {
-		EnwikiExtractor ee = new EnwikiExtractor();
+		ZhwikiExtractor ze = new ZhwikiExtractor();
 		Date start_date = new Date();
 		System.out.println("Extraction starts at:" + start_date);
-//		ee.test("/Users/locke/Downloads/a.txt");
-		ee.test("/home/lcj/enwiki-latest-pages-articles-multistream.xml");
+//		ze.test("/Users/locke/Downloads/b.xml");
+		ze.test("/home/lcj/zhwiki-latest-pages-articles-multistream.xml");
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
 		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");
@@ -54,8 +54,8 @@ public class EnwikiExtractor {
 	public void test(String filename) throws Exception {
     	System.out.println("Processing file: " + filename);
         BufferedReader bufferedReaderRaw = new BufferedReader(new FileReader(new File(filename)));
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".result."))));
-        BufferedWriter bufferedWriterRedirect = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".redirect."))));
+//        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".result."))));
+//        BufferedWriter bufferedWriterRedirect = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".redirect."))));
 
         String line = new String();
         List<String> list = new ArrayList<String>();
@@ -99,6 +99,7 @@ public class EnwikiExtractor {
             		JSONObject infobox = getInfobox(infobox_list);
             		JSONObject infobox_sub = getInfobox(infobox_list_sub);
             		
+            		
             		if (infobox.length() < infobox_sub.length()) {
             			infobox = infobox_sub;
             		}
@@ -109,20 +110,25 @@ public class EnwikiExtractor {
             		while (matcher.find()) {
             			links.put(matcher.group(0));
             		}
+//            		System.out.println(links);
             		
             		page.put("title", title);
             		page.put("article", article);
             		page.put("links", links);
             		page.put("infobox", infobox);
 //            		System.out.println(page.toString());
-            		bufferedWriter.write(page.toString() + "\n");
-//        			break;
+            		
+//            		bufferedWriter.write(page.toString() + "\n");
+//            		if (cnt == 100) {
+//            			break;
+//            		}
             	} else {
             		// redirect page
+//            		System.out.println(redirect);
             		String res_page_title = title.text().trim();
             		String tar_page_title = redirect.get(0).attr("title").trim();
             		if (res_page_title.equals("")==false && tar_page_title.equals("")==false) {
-            			bufferedWriterRedirect.write(res_page_title + "\t\t" + tar_page_title + "\n");
+//            			bufferedWriterRedirect.write(res_page_title + "\t\t" + tar_page_title + "\n");
             		}
 //            		break;
             	}
@@ -137,7 +143,7 @@ public class EnwikiExtractor {
             		list.add(tem_s[0]);
             		line = "{{" + tem_s[1];
             	}
-            	if (line.trim().startsWith("{{Infobox")) {
+            	if (line.trim().startsWith("{{中国省份") || line.trim().startsWith("{{Infobox")) {
             		if (infobox_list.isEmpty()) {
             			while (line.trim().equals("}}") == false) {
                 			infobox_list.add(line);
@@ -160,7 +166,7 @@ public class EnwikiExtractor {
         }
         System.out.println(cnt);
         bufferedReaderRaw.close();
-        bufferedWriter.close();
-        bufferedWriterRedirect.close();
+//        bufferedWriter.close();
+//        bufferedWriterRedirect.close();
 	}
 }

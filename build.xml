@@ -65,7 +65,7 @@
         </java>
     </target>
     <target name="ZhwikiExtractor">
-        <java classname="enwikiExtractor.ZhwikiExtractor" failonerror="true" fork="yes">
+        <java classname="zhwikiExtractor.ZhwikiExtractor" failonerror="true" fork="yes">
             <classpath refid="WikiExtractor.classpath"/>
         </java>
     </target>
