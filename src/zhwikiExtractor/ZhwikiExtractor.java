@@ -82,6 +82,7 @@ public class ZhwikiExtractor {
             	Element title = doc.get(0).getElementsByTag("title").get(0);
             	Elements redirect = doc.get(0).getElementsByTag("redirect");
             	Element text = doc.get(0).getElementsByTag("text").get(0);
+            	System.out.println(cnt);
             	if (redirect.size() == 0) {
             		String article = text.toString();
             		article = article.replaceAll("<text(.*?)>", "").replaceAll("</text>", "");
