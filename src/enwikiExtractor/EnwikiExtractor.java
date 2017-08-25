@@ -95,7 +95,8 @@ public class EnwikiExtractor {
             		article = article.replaceAll("\\[\\[Category(.*?)\\]\\]", "");
             		article = article.replaceAll("===(.*?)===", "").replaceAll("==(.*?)==", "");
             		article = article.replaceAll("\\[\\[User:(.*?)\\]\\]", "").replaceAll("\\[\\[:File:(.*?)\\]\\]", ""); // new added
-            		article = article.replaceAll("\\[\\[File:(.*?)((\\[\\[(.*?)\\]\\])(.*?))*\\]\\]", "");
+//            		article = article.replaceAll("\\[\\[File:(.*?)((\\[\\[(.*?)\\]\\])(.*?))*\\]\\]", "");
+            		article = article.replaceAll("\\[\\[File:(.*?)\\]\\]", "");  // edit n
             		article = article.replaceAll("\\[https://(.*?)\\]", "").replaceAll("\\[http://(.*?)\\]", "");
             		article = article.replaceAll("\n", "").replaceAll("[ ]+", " ").trim();
 //            		System.out.println(article);
