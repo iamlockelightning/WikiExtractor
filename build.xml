@@ -74,4 +74,9 @@
             <classpath refid="WikiExtractor.classpath"/>
         </java>
     </target>
+  	<target name="LangLinksExtractor">
+        <java classname="langlinksExtractor.LangLinksExtractor" failonerror="true" fork="yes">
+            <classpath refid="WikiExtractor.classpath"/>
+        </java>
+    </target>
 </project>
