@@ -32,7 +32,9 @@ public class EnwikiExtractor {
 		String infotext = StringUtils.join(infobox_list, "\n").replaceAll("\\[\\[File:(.*?)((\\[\\[(.*?)\\]\\])(.*?))*\\]\\]", "").replaceAll("\\[https://(.*?)\\]", "").replaceAll("\\[http://(.*?)\\]", "");
 		List<String> temp_list = new ArrayList<String>();
 		for (String s : infotext.split("\n")) {
-			s = s.replaceAll("\\{\\{(.*?)(\\{\\{(.*?)\\}\\}(.*?))*\\}\\}", "").replaceAll("\\&lt;(.*?)\\&gt;", "").trim();
+//			s = s.replaceAll("\\{\\{(.*?)(\\{\\{(.*?)\\}\\}(.*?))*\\}\\}", "");
+			s = s.replaceAll("\\{\\{(.*?)\\}\\}", "");
+			s = s.replaceAll("\\&lt;(.*?)\\&gt;", "").trim();
 //			System.out.println(s);
 			if (s.startsWith("|")) {
 				temp_list.add(s);
