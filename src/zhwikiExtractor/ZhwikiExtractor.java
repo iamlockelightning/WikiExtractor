@@ -20,8 +20,8 @@ public class ZhwikiExtractor {
 		ZhwikiExtractor ze = new ZhwikiExtractor();
 		Date start_date = new Date();
 		System.out.println("Extraction starts at:" + start_date);
-//		ze.test("/Users/locke/Downloads/b.xml");
-		ze.test("/home/lcj/zhwiki-latest-pages-articles-multistream.xml");
+		ze.test("/Users/locke/Downloads/zhwiki-latest-pages-articles-multistream.xml");
+//		ze.test("/home/lcj/zhwiki-latest-pages-articles-multistream.xml");
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
 		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");
@@ -54,8 +54,8 @@ public class ZhwikiExtractor {
 	public void test(String filename) throws Exception {
     	System.out.println("Processing file: " + filename);
         BufferedReader bufferedReaderRaw = new BufferedReader(new FileReader(new File(filename)));
-//        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".result."))));
-//        BufferedWriter bufferedWriterRedirect = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".redirect."))));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".result."))));
+        BufferedWriter bufferedWriterRedirect = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".redirect."))));
 
         String line = new String();
         List<String> list = new ArrayList<String>();
@@ -82,12 +82,15 @@ public class ZhwikiExtractor {
             	Element title = doc.get(0).getElementsByTag("title").get(0);
             	Elements redirect = doc.get(0).getElementsByTag("redirect");
             	Element text = doc.get(0).getElementsByTag("text").get(0);
-            	System.out.println(cnt);
+            	Element id = doc.get(0).getElementsByTag("id").get(0);
+//	            System.out.println(cnt);
+//	            System.out.println("id:___" + id.text());
             	if (redirect.size() == 0) {
             		String article = text.toString();
             		article = article.replaceAll("<text(.*?)>", "").replaceAll("</text>", "");
             		article = article.replaceAll("\\&amp;amp;lt;(.*?)\\&amp;amp;gt;", "").replaceAll("\\&amp;lt;(.*?)\\&amp;gt;", "").replaceAll("\\&lt;(.*?)\\&gt;", ""); // new added
-            		article = article.replaceAll("\\{\\{(.*?)(\\{\\{(.*?)\\}\\}(.*?))*\\}\\}", "");
+//	            	article = article.replaceAll("\\{\\{(.*?)(\\{\\{(.*?)\\}\\}(.*?))*\\}\\}", "");
+            		article = article.replaceAll("\\{\\{(.*?)\\}\\}", "");
             		article = article.replaceAll("\\&nbsp;", " ").replaceAll("nbsp;", " ").replaceAll("\\&amp;", ""); // new added
             		article = article.replaceAll("\\[\\[Category(.*?)\\]\\]", "");
             		article = article.replaceAll("===(.*?)===", "").replaceAll("==(.*?)==", "");
@@ -100,12 +103,10 @@ public class ZhwikiExtractor {
             		JSONObject infobox = getInfobox(infobox_list);
             		JSONObject infobox_sub = getInfobox(infobox_list_sub);
             		
-            		
             		if (infobox.length() < infobox_sub.length()) {
             			infobox = infobox_sub;
             		}
-            		
-//            		System.out.println(infobox);
+//            		System.out.println(infobox.toString());
             		
             		Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article + infobox.toString());
             		while (matcher.find()) {
@@ -117,9 +118,10 @@ public class ZhwikiExtractor {
             		page.put("article", article);
             		page.put("links", links);
             		page.put("infobox", infobox);
+            		page.put("id", id.text());
 //            		System.out.println(page.toString());
             		
-//            		bufferedWriter.write(page.toString() + "\n");
+            		bufferedWriter.write(page.toString() + "\n");
 //            		if (cnt == 100) {
 //            			break;
 //            		}
@@ -129,7 +131,7 @@ public class ZhwikiExtractor {
             		String res_page_title = title.text().trim();
             		String tar_page_title = redirect.get(0).attr("title").trim();
             		if (res_page_title.equals("")==false && tar_page_title.equals("")==false) {
-//            			bufferedWriterRedirect.write(res_page_title + "\t\t" + tar_page_title + "\n");
+            			bufferedWriterRedirect.write(id.text() + "\t\t" + res_page_title + "\t\t" + tar_page_title + "\n");
             		}
 //            		break;
             	}
@@ -163,11 +165,12 @@ public class ZhwikiExtractor {
             			list.add(line);
             		}
             	}
+            	
         	}
         }
         System.out.println(cnt);
         bufferedReaderRaw.close();
-//        bufferedWriter.close();
-//        bufferedWriterRedirect.close();
+        bufferedWriter.close();
+        bufferedWriterRedirect.close();
 	}
 }

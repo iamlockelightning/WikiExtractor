@@ -82,11 +82,13 @@ public class EnwikiExtractor {
             	Element title = doc.get(0).getElementsByTag("title").get(0);
             	Elements redirect = doc.get(0).getElementsByTag("redirect");
             	Element text = doc.get(0).getElementsByTag("text").get(0);
+            	Element id = doc.get(0).getElementsByTag("id").get(0);
             	if (redirect.size() == 0) {
             		String article = text.toString();
             		article = article.replaceAll("<text(.*?)>", "").replaceAll("</text>", "");
             		article = article.replaceAll("\\&amp;amp;lt;(.*?)\\&amp;amp;gt;", "").replaceAll("\\&amp;lt;(.*?)\\&amp;gt;", "").replaceAll("\\&lt;(.*?)\\&gt;", ""); // new added
-            		article = article.replaceAll("\\{\\{(.*?)(\\{\\{(.*?)\\}\\}(.*?))*\\}\\}", "");
+//	            	article = article.replaceAll("\\{\\{(.*?)(\\{\\{(.*?)\\}\\}(.*?))*\\}\\}", "");
+            		article = article.replaceAll("\\{\\{(.*?)\\}\\}", "");
             		article = article.replaceAll("\\&nbsp;", " ").replaceAll("nbsp;", " ").replaceAll("\\&amp;", ""); // new added
             		article = article.replaceAll("\\[\\[Category(.*?)\\]\\]", "");
             		article = article.replaceAll("===(.*?)===", "").replaceAll("==(.*?)==", "");
@@ -114,6 +116,7 @@ public class EnwikiExtractor {
             		page.put("article", article);
             		page.put("links", links);
             		page.put("infobox", infobox);
+            		page.put("id", id.text());
 //            		System.out.println(page.toString());
             		bufferedWriter.write(page.toString() + "\n");
 //        			break;
@@ -122,7 +125,7 @@ public class EnwikiExtractor {
             		String res_page_title = title.text().trim();
             		String tar_page_title = redirect.get(0).attr("title").trim();
             		if (res_page_title.equals("")==false && tar_page_title.equals("")==false) {
-            			bufferedWriterRedirect.write(res_page_title + "\t\t" + tar_page_title + "\n");
+            			bufferedWriterRedirect.write(id.text() + "\t\t" + res_page_title + "\t\t" + tar_page_title + "\n");
             		}
 //            		break;
             	}
