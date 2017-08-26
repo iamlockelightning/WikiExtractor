@@ -24,8 +24,8 @@ public class EnwikiExtractor {
 //		ee.test("/Users/locke/Downloads/a.txt");
 //		ee.test("/home/lcj/enwiki-latest-pages-articles-multistream.xml");
 		
-		ee.getIdWithTitle("/home/lcj/enwiki-latest-pages-articles-multistream.result.xml");
-		ee.getIdWithTitle("/home/lcj/zhwiki-latest-pages-articles-multistream.result.xml");
+		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.result.xml");
+		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.result.xml");
 		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
