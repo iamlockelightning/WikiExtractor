@@ -24,8 +24,10 @@ public class EnwikiExtractor {
 //		ee.test("/Users/locke/Downloads/a.txt");
 //		ee.test("/home/lcj/enwiki-latest-pages-articles-multistream.xml");
 		
-		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.result.xml");
-		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.result.xml");
+//		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.result.xml");
+//		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.result.xml");
+		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.redirect.xml");
+		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.redirect.xml");
 		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
@@ -34,7 +36,7 @@ public class EnwikiExtractor {
 	
 	public void getIdWithTitle(String filename) throws Exception {
 		BufferedReader bufferedReaderRaw = new BufferedReader(new FileReader(new File(filename)));
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".result", ".id_title"))));
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".id_title"))));
 		String line = new String();
 
         while (true) {
