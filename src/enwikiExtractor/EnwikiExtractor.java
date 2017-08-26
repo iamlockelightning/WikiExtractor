@@ -26,8 +26,6 @@ public class EnwikiExtractor {
 		
 //		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.result.xml");
 //		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.result.xml");
-		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.redirect.xml");
-		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.redirect.xml");
 		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
