@@ -20,11 +20,33 @@ public class EnwikiExtractor {
 		EnwikiExtractor ee = new EnwikiExtractor();
 		Date start_date = new Date();
 		System.out.println("Extraction starts at:" + start_date);
+		
 //		ee.test("/Users/locke/Downloads/a.txt");
-		ee.test("/home/lcj/enwiki-latest-pages-articles-multistream.xml");
+//		ee.test("/home/lcj/enwiki-latest-pages-articles-multistream.xml");
+		
+		ee.getIdWithTitle("/home/lcj/enwiki-latest-pages-articles-multistream.result.xml");
+		ee.getIdWithTitle("/home/lcj/zhwiki-latest-pages-articles-multistream.result.xml");
+		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
 		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");
+	}
+	
+	public void getIdWithTitle(String filename) throws Exception {
+		BufferedReader bufferedReaderRaw = new BufferedReader(new FileReader(new File(filename)));
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".id_title."))));
+		String line = new String();
+
+        while (true) {
+            line = bufferedReaderRaw.readLine();
+            if (line == null) {
+            	break;
+            }
+            JSONObject page = new JSONObject(line);
+            bufferedWriter.write(page.get("id") + "\t\t" + page.get("title") + "\n");
+        }
+        bufferedReaderRaw.close();
+        bufferedWriter.close();
 	}
 	
 	public JSONObject getInfobox(List<String> infobox_list) {
