@@ -34,7 +34,7 @@ public class EnwikiExtractor {
 	
 	public void getIdWithTitle(String filename) throws Exception {
 		BufferedReader bufferedReaderRaw = new BufferedReader(new FileReader(new File(filename)));
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".", ".id_title."))));
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filename.replace(".result", ".id_title"))));
 		String line = new String();
 
         while (true) {
