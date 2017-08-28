@@ -22,10 +22,10 @@ public class EnwikiExtractor {
 		System.out.println("Extraction starts at:" + start_date);
 		
 //		ee.test("/Users/locke/Downloads/a.txt");
-//		ee.test("/home/lcj/enwiki-latest-pages-articles-multistream.xml");
+		ee.test("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.xml");
 		
-//		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.result.xml");
-//		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.result.xml");
+		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.result.xml");
+		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.result.xml");
 		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
@@ -137,7 +137,7 @@ public class EnwikiExtractor {
             			links.put(matcher.group(0));
             		}
             		
-            		page.put("title", title);
+            		page.put("title", title.text());
             		page.put("article", article);
             		page.put("links", links);
             		page.put("infobox", infobox);

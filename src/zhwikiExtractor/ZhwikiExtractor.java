@@ -20,8 +20,8 @@ public class ZhwikiExtractor {
 		ZhwikiExtractor ze = new ZhwikiExtractor();
 		Date start_date = new Date();
 		System.out.println("Extraction starts at:" + start_date);
-		ze.test("/Users/locke/Downloads/zhwiki-latest-pages-articles-multistream.xml");
-//		ze.test("/home/lcj/zhwiki-latest-pages-articles-multistream.xml");
+//		ze.test("/Users/locke/Downloads/zhwiki-latest-pages-articles-multistream.xml");
+		ze.test("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.xml");
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
 		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");
@@ -114,7 +114,7 @@ public class ZhwikiExtractor {
             		}
 //            		System.out.println(links);
             		
-            		page.put("title", title);
+            		page.put("title", title.text());
             		page.put("article", article);
             		page.put("links", links);
             		page.put("infobox", infobox);
