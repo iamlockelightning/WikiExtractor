@@ -1,15 +1,15 @@
 package preProcess;
 
-import java.util.List;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class PreProcess {
 
@@ -62,14 +62,15 @@ public class PreProcess {
 		Map<String, String> zh_id2title_dict = read_w_t_t_w(zh_id_title, 0);
 		Map<String, String> zh_title2id_dict = read_w_t_t_w(zh_id_title, 1);
 		
-		List<String> common_zh_id = new ArrayList<String>();
+		Set<String> common_zh_id = new HashSet<String>();
 		common_zh_id.addAll(zh_id2title_dict.keySet());
 		common_zh_id.retainAll(cl_zh_id2title_dict.keySet());
 		
-		List<String> common_en_title = new ArrayList<String>();
+		Set<String> common_en_title = new HashSet<String>();
 		common_en_title.addAll(cl_zh_title2id_dict.keySet());
 		common_en_title.retainAll(en_title2id_dict.keySet());
 		
+		System.out.println("lalalal");
         System.out.println(common_zh_id.size());
         System.out.println(common_en_title.size());
         
