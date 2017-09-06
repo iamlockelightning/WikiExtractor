@@ -101,7 +101,7 @@ public class PreProcess {
                         		"list", "mediawiki", "categories", " articles"};
         String line = new String();
         while (true) {
-            line = bufferedReader.readLine();
+            line = bufferedReader.readLine().replaceAll("\\'", "'");
             if (line == null) {
             	break;
             }
@@ -113,7 +113,7 @@ public class PreProcess {
             	}
             }
             if (contains == false) {
-            	bufferedWriter.write(line.replaceAll("\\'", "'") + "\n");
+            	bufferedWriter.write(line + "\n");
             }
         }
         bufferedReader.close();
