@@ -56,14 +56,20 @@ public class PreProcess {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(en_pages)));
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(en_pages.replace(".xml", ".cl.xml"))));
         line = new String();
+        int cnt = 0;
         while (true) {
             line = bufferedReader.readLine();
             if (line == null) {
             	break;
             }
             JSONObject page = new JSONObject(line);
+            System.out.println(page.get("id") + "\t\t" + page.get("title"));
             if (cl_en_id2title.containsKey( page.get("id") ) && cl_en_title2id.containsKey( page.get("title") )) {
             	bufferedWriter.write(line + "\n");
+            	cnt += 1;
+            }
+            if (cnt%10000==0) {
+            	System.out.println("__" + cnt);
             }
         }
         bufferedReader.close();
