@@ -132,8 +132,8 @@ public class PreProcess {
         
         
 		Set<String> common_en_title = new HashSet<String>();
-		common_en_title.retainAll(en_title2id_dict.keySet());
-		common_en_title.addAll(cl_zh_title2id_dict.keySet());
+		common_en_title.addAll(en_title2id_dict.keySet());
+		common_en_title.retainAll(cl_zh_title2id_dict.keySet());
         System.out.println(common_en_title.size());
         
         bufferedWriter = new BufferedWriter(new FileWriter(new File("en_zh_cl_id_title.txt")));
