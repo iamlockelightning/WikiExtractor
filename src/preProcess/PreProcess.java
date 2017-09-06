@@ -24,8 +24,8 @@ public class PreProcess {
 		String location = "/home/lcj/WikiExtractor/etc/";
 //		String location = "/Users/locke/Desktop/preprocess/";
 		
-		pp.CLFilter(location+"zhwiki-latest-langlinks.2en.result.sql", location+"enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", location+"zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
-//		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
+//		pp.CLFilter(location+"zhwiki-latest-langlinks.2en.result.sql", location+"enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", location+"zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
+		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
 		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
@@ -46,10 +46,10 @@ public class PreProcess {
             	break;
             }
             String[] words = line.split("\t\t");
-            cl_en_id2title.put(words[0], words[1]);
-            cl_en_title2id.put(words[1], words[0]);
-            cl_zh_id2title.put(words[2], words[3]);
-            cl_zh_title2id.put(words[3], words[2]);
+            cl_en_id2title.put(words[1], words[0]);
+            cl_en_title2id.put(words[0], words[1]);
+            cl_zh_id2title.put(words[3], words[2]);
+            cl_zh_title2id.put(words[2], words[3]);
         }
         bufferedReaderCL.close();
 		
@@ -68,7 +68,7 @@ public class PreProcess {
             	bufferedWriter.write(line + "\n");
             	cnt += 1;
             }
-            if (cnt%10000==0) {
+            if (cnt%100000==0) {
             	System.out.println("__" + cnt);
             }
         }
