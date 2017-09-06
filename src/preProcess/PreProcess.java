@@ -108,7 +108,7 @@ public class PreProcess {
             boolean contains = false;
 
             System.out.println(line);            
-            line = line.replaceAll("\\'", "'");
+            line = line.replace("\\'", "'");
             System.out.println(line);
             
             for (String word : filter_words) {
