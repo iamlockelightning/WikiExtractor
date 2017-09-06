@@ -106,7 +106,11 @@ public class PreProcess {
             	break;
             }
             boolean contains = false;
+
+            System.out.println(line);            
             line = line.replaceAll("\\'", "'");
+            System.out.println(line);
+            
             for (String word : filter_words) {
             	if (line.toLowerCase().contains(word.toLowerCase())) {
             		contains = true;
