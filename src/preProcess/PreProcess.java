@@ -25,7 +25,7 @@ public class PreProcess {
 //		String location = "/Users/locke/Desktop/preprocess/";
 		
 		pp.CLFilter(location+"zhwiki-latest-langlinks.2en.result.sql", location+"enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", location+"zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
-		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
+//		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
 		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
@@ -113,7 +113,7 @@ public class PreProcess {
             	}
             }
             if (contains == false) {
-            	bufferedWriter.write(line.replace("\'", "'") + "\n");
+            	bufferedWriter.write(line.replaceAll("\\'", "'") + "\n");
             }
         }
         bufferedReader.close();
