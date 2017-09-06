@@ -101,11 +101,12 @@ public class PreProcess {
                         		"list", "mediawiki", "categories", " articles"};
         String line = new String();
         while (true) {
-            line = bufferedReader.readLine().replaceAll("\\'", "'");
+            line = bufferedReader.readLine();
             if (line == null) {
             	break;
             }
             boolean contains = false;
+            line = line.replaceAll("\\'", "'");
             for (String word : filter_words) {
             	if (line.toLowerCase().contains(word.toLowerCase())) {
             		contains = true;
