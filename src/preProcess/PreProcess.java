@@ -113,7 +113,7 @@ public class PreProcess {
             	}
             }
             if (contains == false) {
-            	bufferedWriter.write(line.replaceAll("\\\'", "'") + "\n");
+            	bufferedWriter.write(line.replaceAll("\\'", "'") + "\n");
             }
         }
         bufferedReader.close();
