@@ -24,7 +24,7 @@ public class PreProcess {
 		String location = "/home/lcj/WikiExtractor/etc/";
 //		String location = "/Users/locke/Desktop/preprocess/";
 		
-//		pp.CLFilter(location+"zhwiki-latest-langlinks.2en.result.sql", location+"enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", location+"zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
+		pp.CLFilter(location+"zhwiki-latest-langlinks.2en.result.sql", location+"enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", location+"zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
 		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
 		
 		Date end_date = new Date();
@@ -63,7 +63,7 @@ public class PreProcess {
             	break;
             }
             JSONObject page = new JSONObject(line);
-            System.out.println(page.get("id") + "\t\t" + page.get("title"));
+//            System.out.println(page.get("id") + "\t\t" + page.get("title"));
             if (cl_en_id2title.containsKey( page.get("id") ) && cl_en_title2id.containsKey( page.get("title") )) {
             	bufferedWriter.write(line + "\n");
             	cnt += 1;
@@ -113,7 +113,7 @@ public class PreProcess {
             	}
             }
             if (contains == false) {
-            	bufferedWriter.write(line + "\n");
+            	bufferedWriter.write(line.replace("\'", "'") + "\n");
             }
         }
         bufferedReader.close();
@@ -121,13 +121,8 @@ public class PreProcess {
 		
         Map<String, String> cl_zh_id2title_dict = read_w_t_t_w(zh_cl.replace("result.", "result.new."), 0);
         Map<String, String> cl_zh_title2id_dict = read_w_t_t_w(zh_cl.replace("result.", "result.new."), 1);
-
-        Map<String, String> en_id2title_dict = read_w_t_t_w(en_id_title, 0);
-		Map<String, String> en_title2id_dict = read_w_t_t_w(en_id_title, 1);
-        
+		Map<String, String> en_title2id_dict = read_w_t_t_w(en_id_title, 1); 
 		Map<String, String> zh_id2title_dict = read_w_t_t_w(zh_id_title, 0);
-		Map<String, String> zh_title2id_dict = read_w_t_t_w(zh_id_title, 1);
-		
 		
 		Set<String> common_zh_id = new HashSet<String>();
 		common_zh_id.addAll(zh_id2title_dict.keySet());
