@@ -49,7 +49,7 @@ public class PreProcess {
             }
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
-            if (page.getString("article").equals("")==false && page.getJSONArray("links").length()!=0 && page.getJSONObject("infobox").length()!=0) {
+            if (page.getString("article").equals("")==false && page.getJSONObject("infobox").length()!=0) {
             	 en_cl_pages_titleid2page.put(titleid, line);
             }
         }
@@ -62,7 +62,7 @@ public class PreProcess {
             }
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
-            if (page.getString("article").equals("")==false && page.getJSONArray("links").length()!=0 && page.getJSONObject("infobox").length()!=0) {
+            if (page.getString("article").equals("")==false && page.getJSONObject("infobox").length()!=0) {
             	zh_cl_pages_titleid2page.put(titleid, line);
             }
         }
@@ -132,10 +132,10 @@ public class PreProcess {
         });
         
         for (String k : en_attrs.keySet()) {
-        	bufferedWriter_attr_en.write(k + en_attrs.get(k) + "\n");
+        	bufferedWriter_attr_en.write(k + "\t\t" + en_attrs.get(k) + "\n");
         }
         for (String k : zh_attrs.keySet()) {
-        	bufferedWriter_attr_zh.write(k + zh_attrs.get(k) + "\n");
+        	bufferedWriter_attr_zh.write(k + "\t\t" + zh_attrs.get(k) + "\n");
         }
         bufferedWriter_attr_en.close();
         bufferedWriter_attr_zh.close();
