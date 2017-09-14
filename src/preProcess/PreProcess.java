@@ -49,7 +49,7 @@ public class PreProcess {
             }
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
-            if (page.getString("article").equals("")==false && page.getJSONObject("infobox").length()!=0) {
+            if (page.getJSONObject("infobox").length()!=0) {
             	 en_cl_pages_titleid2page.put(titleid, line);
             }
         }
@@ -62,7 +62,7 @@ public class PreProcess {
             }
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
-            if (page.getString("article").equals("")==false && page.getJSONObject("infobox").length()!=0) {
+            if (page.getJSONObject("infobox").length()!=0) {
             	zh_cl_pages_titleid2page.put(titleid, line);
             }
         }
