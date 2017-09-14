@@ -5,9 +5,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,6 +70,10 @@ public class PreProcess {
         BufferedWriter bufferedWriter_enzhtitleid = new BufferedWriter(new FileWriter(new File("en_zh_cl_titleid.txt")));
         BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File("en_cl_page.txt")));
         BufferedWriter bufferedWriter_zh = new BufferedWriter(new FileWriter(new File("zh_cl_page.txt")));
+        BufferedWriter bufferedWriter_attr_en = new BufferedWriter(new FileWriter(new File("en_cl_attr.txt")));
+        BufferedWriter bufferedWriter_attr_zh = new BufferedWriter(new FileWriter(new File("zh_cl_attr.txt")));
+        Map<String, Integer> en_attrs = new LinkedHashMap<String, Integer>();
+        Map<String, Integer> zh_attrs = new LinkedHashMap<String, Integer>();
         bufferedReader = new BufferedReader(new FileReader(new File(en_zh_cl_id_title)));
         while (true) {
             line = bufferedReader.readLine();
@@ -78,12 +87,58 @@ public class PreProcess {
             	bufferedWriter_enzhtitleid.write(line + "\n");
             	bufferedWriter_en.write(en_cl_pages_titleid2page.get(en_titleid) + "\n");
             	bufferedWriter_zh.write(zh_cl_pages_titleid2page.get(zh_titleid) + "\n");
+            	
+            	JSONObject en_page = new JSONObject(en_cl_pages_titleid2page.get(en_titleid));
+            	JSONObject en_infobox = en_page.getJSONObject("infobox");
+            	for (String k : en_infobox.keySet()) {
+            		if (en_attrs.containsKey(k)) {
+            			en_attrs.put(k, en_attrs.get(k)+1);
+            		} else {
+            			en_attrs.put(k, 0);
+            		}
+            	}
+            	
+            	JSONObject zh_page = new JSONObject(zh_cl_pages_titleid2page.get(zh_titleid));
+            	JSONObject zh_infobox = zh_page.getJSONObject("infobox");
+            	for (String k : zh_infobox.keySet()) {
+            		if (zh_attrs.containsKey(k)) {
+            			zh_attrs.put(k, zh_attrs.get(k)+1);
+            		} else {
+            			zh_attrs.put(k, 0);
+            		}
+            	}
             }
         }
         bufferedReader.close();
         bufferedWriter_enzhtitleid.close();
         bufferedWriter_en.close();
         bufferedWriter_zh.close();
+        
+        // 通过ArrayList构造函数把map.entrySet()转换成list
+        List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(en_attrs.entrySet());
+        // 通过比较器实现比较排序
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> mapping1, Map.Entry<String, Integer> mapping2) {
+                return mapping1.getValue().compareTo(mapping2.getValue());
+            }
+        });
+        // 通过ArrayList构造函数把map.entrySet()转换成list
+        list = new ArrayList<Map.Entry<String, Integer>>(zh_attrs.entrySet());
+        // 通过比较器实现比较排序
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> mapping1, Map.Entry<String, Integer> mapping2) {
+                return mapping1.getValue().compareTo(mapping2.getValue());
+            }
+        });
+        
+        for (String k : en_attrs.keySet()) {
+        	bufferedWriter_attr_en.write(k + en_attrs.get(k) + "\n");
+        }
+        for (String k : zh_attrs.keySet()) {
+        	bufferedWriter_attr_zh.write(k + zh_attrs.get(k) + "\n");
+        }
+        bufferedWriter_attr_en.close();
+        bufferedWriter_attr_zh.close();
 	}
 	
 	public void getCLEntities(String en_zh_cl_id_title, String en_pages, String zh_pages) throws Exception {
