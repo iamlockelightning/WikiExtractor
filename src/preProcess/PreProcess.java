@@ -49,9 +49,9 @@ public class PreProcess {
             }
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
-//            if (page.getJSONObject("infobox").length()!=0) {
+            if (page.getString("article").equals("")==false) {
             	 en_cl_pages_titleid2page.put(titleid, line);
-//            }
+            }
         }
         bufferedReader.close();
         bufferedReader = new BufferedReader(new FileReader(new File(zh_cl_pages)));
@@ -62,9 +62,9 @@ public class PreProcess {
             }
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
-//            if (page.getJSONObject("infobox").length()!=0) {
+            if (page.getString("article").equals("")==false) {
             	zh_cl_pages_titleid2page.put(titleid, line);
-//            }
+            }
         }
         bufferedReader.close();
         BufferedWriter bufferedWriter_enzhtitleid = new BufferedWriter(new FileWriter(new File("en_zh_cl_titleid.txt")));
