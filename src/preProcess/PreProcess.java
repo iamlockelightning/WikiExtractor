@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections4.Put;
 import org.json.JSONObject;
 
 public class PreProcess {
@@ -25,11 +24,66 @@ public class PreProcess {
 //		String location = "/Users/locke/Desktop/preprocess/";
 		
 //		pp.CLFilter(location+"zhwiki-latest-langlinks.2en.result.sql", location+"enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", location+"zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
-		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
+//		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
+		pp.matchEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.cl.xml", location+"zhwiki-latest-pages-articles-multistream.result.cl.xml");
 		
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
 		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");
+	}
+	
+	public void matchEntities(String en_zh_cl_id_title, String en_cl_pages, String zh_cl_pages) throws Exception {
+		Map<String, String> en_cl_pages_titleid2page = new HashMap<String, String>();
+		Map<String, String> zh_cl_pages_titleid2page = new HashMap<String, String>();
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(en_cl_pages)));
+		String line = new String();
+        while (true) {
+            line = bufferedReader.readLine();
+            if (line == null) {
+            	break;
+            }
+            JSONObject page = new JSONObject(line);
+            String titleid = page.getString("title") + "#####" + page.getString("id");
+            if (page.getString("article").equals("")==false && page.getJSONArray("links").length()!=0 && page.getJSONObject("infobox").length()!=0) {
+            	 en_cl_pages_titleid2page.put(titleid, line);
+            }
+        }
+        bufferedReader.close();
+        bufferedReader = new BufferedReader(new FileReader(new File(zh_cl_pages)));
+        while (true) {
+            line = bufferedReader.readLine();
+            if (line == null) {
+            	break;
+            }
+            JSONObject page = new JSONObject(line);
+            String titleid = page.getString("title") + "#####" + page.getString("id");
+            if (page.getString("article").equals("")==false && page.getJSONArray("links").length()!=0 && page.getJSONObject("infobox").length()!=0) {
+            	zh_cl_pages_titleid2page.put(titleid, line);
+            }
+        }
+        bufferedReader.close();
+        BufferedWriter bufferedWriter_enzhtitleid = new BufferedWriter(new FileWriter(new File("en_zh_cl_titleid.txt")));
+        BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File("en_cl_page.txt")));
+        BufferedWriter bufferedWriter_zh = new BufferedWriter(new FileWriter(new File("zh_cl_page.txt")));
+        bufferedReader = new BufferedReader(new FileReader(new File(en_zh_cl_id_title)));
+        while (true) {
+            line = bufferedReader.readLine();
+            if (line == null) {
+            	break;
+            }
+            String[] words = line.split("\t\t");
+            String en_titleid = words[0] + "#####" + words[1];
+            String zh_titleid = words[2] + "#####" + words[3];
+            if (en_cl_pages_titleid2page.containsKey(en_titleid) && zh_cl_pages_titleid2page.containsKey(zh_titleid)) {
+            	bufferedWriter_enzhtitleid.write(line + "\n");
+            	bufferedWriter_en.write(en_cl_pages_titleid2page.get(en_titleid) + "\n");
+            	bufferedWriter_zh.write(zh_cl_pages_titleid2page.get(zh_titleid) + "\n");
+            }
+        }
+        bufferedReader.close();
+        bufferedWriter_enzhtitleid.close();
+        bufferedWriter_en.close();
+        bufferedWriter_zh.close();
 	}
 	
 	public void getCLEntities(String en_zh_cl_id_title, String en_pages, String zh_pages) throws Exception {
@@ -67,9 +121,9 @@ public class PreProcess {
             if (cl_en_id2title.containsKey( page.get("id") ) && cl_en_title2id.containsKey( page.get("title") )) {
             	bufferedWriter.write(line + "\n");
             	cnt += 1;
-            }
-            if (cnt%100000==0) {
-            	System.out.println("__" + cnt);
+            	if (cnt%100000==0) {
+                	System.out.println("__" + cnt);
+                }
             }
         }
         bufferedReader.close();
