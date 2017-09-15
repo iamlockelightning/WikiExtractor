@@ -113,6 +113,8 @@ public class PreProcess {
         bufferedWriter_enzhtitleid.close();
         bufferedWriter_en.close();
         bufferedWriter_zh.close();
+        System.out.println(en_attrs.size());
+        System.out.println(zh_attrs.size());
         
         // 通过ArrayList构造函数把map.entrySet()转换成list
         List<Map.Entry<String, Integer>> en_list = new ArrayList<Map.Entry<String, Integer>>(en_attrs.entrySet());
