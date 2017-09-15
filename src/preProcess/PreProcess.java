@@ -137,7 +137,7 @@ public class PreProcess {
         	bufferedWriter_attr_en.write(item.getKey() + "\t\t" + item.getValue() + "\n");
         }
         for (Map.Entry<String, Integer> item : zh_list) {
-        	bufferedWriter_attr_en.write(item.getKey() + "\t\t" + item.getValue() + "\n");
+        	bufferedWriter_attr_zh.write(item.getKey() + "\t\t" + item.getValue() + "\n");
         }
         bufferedWriter_attr_en.close();
         bufferedWriter_attr_zh.close();
