@@ -94,7 +94,7 @@ public class PreProcess {
             		if (en_attrs.containsKey(k)) {
             			en_attrs.put(k, en_attrs.get(k)+1);
             		} else {
-            			en_attrs.put(k, 0);
+            			en_attrs.put(k, 1);
             		}
             	}
             	
@@ -104,7 +104,7 @@ public class PreProcess {
             		if (zh_attrs.containsKey(k)) {
             			zh_attrs.put(k, zh_attrs.get(k)+1);
             		} else {
-            			zh_attrs.put(k, 0);
+            			zh_attrs.put(k, 1);
             		}
             	}
             }
@@ -115,27 +115,27 @@ public class PreProcess {
         bufferedWriter_zh.close();
         
         // 通过ArrayList构造函数把map.entrySet()转换成list
-        List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(en_attrs.entrySet());
+        List<Map.Entry<String, Integer>> en_list = new ArrayList<Map.Entry<String, Integer>>(en_attrs.entrySet());
         // 通过比较器实现比较排序
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+        Collections.sort(en_list, new Comparator<Map.Entry<String, Integer>>() {
             public int compare(Map.Entry<String, Integer> mapping1, Map.Entry<String, Integer> mapping2) {
                 return mapping1.getValue().compareTo(mapping2.getValue());
             }
         });
         // 通过ArrayList构造函数把map.entrySet()转换成list
-        list = new ArrayList<Map.Entry<String, Integer>>(zh_attrs.entrySet());
+        List<Map.Entry<String, Integer>> zh_list = new ArrayList<Map.Entry<String, Integer>>(zh_attrs.entrySet());
         // 通过比较器实现比较排序
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+        Collections.sort(zh_list, new Comparator<Map.Entry<String, Integer>>() {
             public int compare(Map.Entry<String, Integer> mapping1, Map.Entry<String, Integer> mapping2) {
                 return mapping1.getValue().compareTo(mapping2.getValue());
             }
         });
         
-        for (String k : en_attrs.keySet()) {
-        	bufferedWriter_attr_en.write(k + "\t\t" + en_attrs.get(k) + "\n");
+        for (Map.Entry<String, Integer> item : en_list) {
+        	bufferedWriter_attr_en.write(item.getKey() + "\t\t" + item.getValue() + "\n");
         }
-        for (String k : zh_attrs.keySet()) {
-        	bufferedWriter_attr_zh.write(k + "\t\t" + zh_attrs.get(k) + "\n");
+        for (Map.Entry<String, Integer> item : zh_list) {
+        	bufferedWriter_attr_en.write(item.getKey() + "\t\t" + item.getValue() + "\n");
         }
         bufferedWriter_attr_en.close();
         bufferedWriter_attr_zh.close();
