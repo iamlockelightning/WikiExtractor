@@ -29,7 +29,6 @@ public class PreProcess {
 
 //		pp.getText("./etc/enwiki-latest-pages-articles-multistream.result.xml", "en");
 //		pp.getText("./etc/zhwiki-latest-pages-articles-multistream.result.xml", "zh");
-		pp.getText("/Users/locke/Desktop/zh.txt", "zh");
 		
 //		pp.genTextualNetwork("./etc/enwiki.text", "en");
 //		pp.genTextualNetwork("/Users/locke/Desktop/a.txt", "en");
@@ -44,14 +43,15 @@ public class PreProcess {
 		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
 		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "wiki.text")));
 		String line = null;
-		if (lang.equals("en")) {
-			Set<String> stopwords = new HashSet<String>();
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("./stopwords.txt")));
-	        while (null != (line = bufferedReader.readLine())) {
-	        	stopwords.add(line.trim());
-	        }
-	        bufferedReader.close(); 
-	        englishStemmer stemmer = new englishStemmer();	        
+		Set<String> stopwords = new HashSet<String>();
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("./"+ lang +"_stopwords.txt")));
+        while (null != (line = bufferedReader.readLine())) {
+        	stopwords.add(line.trim());
+        }
+        bufferedReader.close();
+        englishStemmer stemmer = new englishStemmer();
+        
+		if (lang.equals("en")) {	        
 	        line = null;
 	        while (null != (line = bufferedReader_pages.readLine())) {
 	        	JSONObject page = new JSONObject(line);
@@ -73,7 +73,7 @@ public class PreProcess {
 	    			}
 					article = article.replace(el, "");
 				}
-//	        	System.out.println(entity_links);
+	    		
 	    		article = article.replaceAll("[^_a-zA-Z0-9\u4e00-\u9fa5]+", " ").replaceAll("\\s+", " ").trim();
 	    		String[] words = article.split(" ");
 	    		List<String> words2article = new ArrayList<String>();
@@ -87,8 +87,8 @@ public class PreProcess {
 	    			}
 	    			words2article.add(stemmer.getCurrent());
 	    		}
-		        article = StringUtils.join(words2article, " ");
-//	    		System.out.println(article);
+	    		
+		        article = StringUtils.join(words2article, " ").replaceAll("\\s+", " ").trim();
 	        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
         	}
 		} else {
@@ -97,6 +97,7 @@ public class PreProcess {
 			segment.enableOrganizationRecognize(true);
 			segment.enablePlaceRecognize(true);
 			segment.enableTranslatedNameRecognize(true);
+			
 			while (null != (line = bufferedReader_pages.readLine())) {
 	        	JSONObject page = new JSONObject(line);
 	        	String title = page.getString("title");
@@ -116,17 +117,28 @@ public class PreProcess {
 	    				entity_links.add(el.substring(2, el.length()-2).replace(" ", "_"));
 	    			}
 					article = article.replace(el, "");
-				}	    		
+				}
+	    		
 	    		article = article.replaceAll( "[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]" , "").replaceAll("\\s+", " ").trim();
 	    		List<Term> words = segment.seg(article);
 	    		List<String> words2article = new ArrayList<String>();
 	    		for (Term word : words) {
-	    			words2article.add(word.word);
+	    			if (StringUtils.isAlphaSpace(word.word)) {
+	    				if (stopwords.contains(word.word) || word.word.length() < 2) {
+	    					continue;
+	    				}
+	    				stemmer.setCurrent(word.word);
+	    				if (stemmer.stem()==false){
+	    					continue;
+	    				}
+	    				words2article.add(stemmer.getCurrent());
+	    			} else {
+	    				words2article.add(word.word);
+	    			}
 	    		}
-		        article = StringUtils.join(words2article, " ");
-	    		System.out.println(article);
-	    		break;
-//	        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+	    		
+		        article = StringUtils.join(words2article, " ").replaceAll("\\s+", " ").trim();
+	        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
 			}
 		}
         bufferedReader_pages.close();
