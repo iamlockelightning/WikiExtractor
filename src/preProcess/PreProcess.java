@@ -28,7 +28,8 @@ public class PreProcess {
 		
 
 //		pp.getText("./etc/enwiki-latest-pages-articles-multistream.result.xml", "en");
-		pp.getText("./etc/zhwiki-latest-pages-articles-multistream.result.xml", "zh");
+//		pp.getText("./etc/zhwiki-latest-pages-articles-multistream.result.xml", "zh");
+		pp.getText("/Users/locke/Desktop/zh.txt", "zh");
 		
 //		pp.genTextualNetwork("./etc/enwiki.text", "en");
 //		pp.genTextualNetwork("/Users/locke/Desktop/a.txt", "en");
