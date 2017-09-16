@@ -189,13 +189,13 @@ public class PreProcess {
 			String line = null;
 	        while (null != (line = bufferedReader_pages.readLine())) {
 	        	if (t.equals("zh")) {
-	        		line = HanLP.convertToSimplifiedChinese(line).toLowerCase();
-	        	} else {
-	        		line = line.toLowerCase();
+	        		line = HanLP.convertToSimplifiedChinese(line);
 	        	}
 	        	JSONObject page = new JSONObject(line);
-	        	page.getString("article");
-	        	page.getString("title");
+	        	
+	        	page.put("article", page.getString("article").toLowerCase());
+	        	page.put("title", page.getString("title").toLowerCase());
+	        	
 	        	if (pages_map.containsKey(page.getString("title"))) {
 	        		if (line.length() > pages_map.get(page.getString("title")).length()) {
 	        			pages_map.put(page.getString("title"), line);
