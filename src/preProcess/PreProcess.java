@@ -182,17 +182,19 @@ public class PreProcess {
 	}
 	
 	public void duplicateEntitiesRemove(String page_loc, String suffix) throws Exception {
-		String[] type = {"en", "zh"};
+//		String[] type = {"en", "zh"};
+		String[] type = {"zh"};
 		for (String t : type) {
 			BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
 			Set<String> title_set = new HashSet<String>();
 			String line = null;
 	        while (null != (line = bufferedReader_pages.readLine())) {
-	        	if (t.equals("zh")) {
-	        		line = HanLP.convertToSimplifiedChinese(line);
-	        	}
 	        	JSONObject page = new JSONObject(line);
-	        	title_set.add(page.getString("title").toLowerCase());
+	        	if (t.equals("zh")) {
+	        		title_set.add(HanLP.convertToSimplifiedChinese(page.getString("title")).toLowerCase());
+	        	} else {
+	        		title_set.add(page.getString("title").toLowerCase());	        		
+	        	}
 	        }
 	        System.out.println(t + " size: " + title_set.size());
 	        bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
@@ -200,16 +202,18 @@ public class PreProcess {
 			line = null;
 			int cnt = 0;
 	        while (null != (line = bufferedReader_pages.readLine())) {
-	        	if (t.equals("zh")) {
-	        		line = HanLP.convertToSimplifiedChinese(line);
-	        	}
 	        	JSONObject page = new JSONObject(line);
+	        	if (t.equals("zh")) {
+	        		page.put("article", HanLP.convertToSimplifiedChinese(page.getString("article")).toLowerCase());
+		        	page.put("title", HanLP.convertToSimplifiedChinese(page.getString("title")).toLowerCase());
+	        	} else {
+	        		page.put("article", page.getString("article").toLowerCase());
+		        	page.put("title", page.getString("title").toLowerCase());
+	        	}
 	        	cnt += 1;
 	        	if (cnt%10000==0) {
 	        		System.out.println("__" + cnt);
 	        	}
-	        	page.put("article", page.getString("article").toLowerCase());
-	        	page.put("title", page.getString("title").toLowerCase());
 	        	
 	        	if (title_set.contains(page.getString("title"))) {
 	        		bufferedWriter.write(page.toString() + "\n");
