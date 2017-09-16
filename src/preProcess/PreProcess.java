@@ -187,12 +187,16 @@ public class PreProcess {
 			BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
 			Map<String, String> pages_map = new HashMap<String, String>();
 			String line = null;
+			int cnt = 0;
 	        while (null != (line = bufferedReader_pages.readLine())) {
 	        	if (t.equals("zh")) {
 	        		line = HanLP.convertToSimplifiedChinese(line);
 	        	}
 	        	JSONObject page = new JSONObject(line);
-	        	
+	        	cnt += 1;
+	        	if (cnt%10000==0) {
+	        		System.out.println("__" + cnt);
+	        	}
 	        	page.put("article", page.getString("article").toLowerCase());
 	        	page.put("title", page.getString("title").toLowerCase());
 	        	
