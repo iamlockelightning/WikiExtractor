@@ -23,10 +23,7 @@ public class EnwikiExtractor {
 		
 //		ee.test("/Users/locke/Downloads/a.txt");
 		ee.test("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.xml");
-		
-		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/enwiki-latest-pages-articles-multistream.result.xml");
-		ee.getIdWithTitle("/home/lcj/WikiExtractor/etc/zhwiki-latest-pages-articles-multistream.result.xml");
-		
+				
 		Date end_date = new Date();
 		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
 		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");

@@ -21,10 +21,11 @@ public class PreProcess {
 		System.out.println("Extraction starts at:" + new Date());
 		
 		pp.duplicateEntitiesRemove("./etc/", "wiki-latest-pages-articles-multistream.result.xml");
+		System.out.println("lalalal");
+//		pp.CLFilter("./etc/zhwiki-latest-langlinks.2en.result.sql", "./etc/en_id_title.txt", "./etc/zh_id_title.txt");
+//		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.json", "./etc/zh_pages.json");
 		
-//		pp.CLFilter("./etc/zhwiki-latest-langlinks.2en.result.sql", "./etc/enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", "./etc/zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
-//		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/enwiki-latest-pages-articles-multistream.result.xml", "./etc/zhwiki-latest-pages-articles-multistream.result.xml");
-//		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/enwiki-latest-pages-articles-multistream.result.cl.xml", "./etc/zhwiki-latest-pages-articles-multistream.result.cl.xml");
+//		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
 
 //		pp.getText("./etc/enwiki-latest-pages-articles-multistream.result.xml", "en");
@@ -182,8 +183,8 @@ public class PreProcess {
 	}
 	
 	public void duplicateEntitiesRemove(String page_loc, String suffix) throws Exception {
-//		String[] type = {"en", "zh"};
-		String[] type = {"zh"};
+		String[] type = {"en", "zh"};
+//		String[] type = {"zh"};
 		for (String t : type) {
 			BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
 			Set<String> title_set = new HashSet<String>();
@@ -199,6 +200,7 @@ public class PreProcess {
 	        System.out.println(t + " size: " + title_set.size());
 	        bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
 	        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(t + "_pages.json")));
+	        BufferedWriter bufferedWriter_id_title = new BufferedWriter(new FileWriter(new File(t + "_id_title.txt")));
 			line = null;
 			int cnt = 0;
 	        while (null != (line = bufferedReader_pages.readLine())) {
@@ -217,10 +219,12 @@ public class PreProcess {
 	        	
 	        	if (title_set.contains(page.getString("title"))) {
 	        		bufferedWriter.write(page.toString() + "\n");
+	        		bufferedWriter_id_title.write(page.getString("id") + "\t\t" + page.getString("title") + "\n");
 	        		title_set.remove(page.getString("title"));
 	        	}
 	        }
 	        bufferedWriter.close();
+	        bufferedWriter_id_title.close();
 		}
 	}
 	
@@ -335,7 +339,7 @@ public class PreProcess {
         bufferedReaderCL.close();
 		
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(en_pages)));
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(en_pages.replace(".xml", ".cl.xml"))));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(en_pages.replace(".json", ".cl.json"))));
         line = new String();
         int cnt = 0;
         while (null != (line = bufferedReader.readLine())) {
@@ -353,7 +357,7 @@ public class PreProcess {
         bufferedWriter.close();
         
         bufferedReader = new BufferedReader(new FileReader(new File(zh_pages)));
-        bufferedWriter = new BufferedWriter(new FileWriter(new File(zh_pages.replace(".xml", ".cl.xml"))));
+        bufferedWriter = new BufferedWriter(new FileWriter(new File(zh_pages.replace(".json", ".cl.json"))));
         line = new String();
         while (null != (line = bufferedReader.readLine())) {
             JSONObject page = new JSONObject(line);
@@ -383,7 +387,7 @@ public class PreProcess {
             	}
             }
             if (contains == false) {
-            	bufferedWriter.write(line + "\n");
+            	bufferedWriter.write(line.toLowerCase() + "\n");
             }
         }
         bufferedReader.close();
