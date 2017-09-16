@@ -1,52 +1,213 @@
 package preProcess;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.Segment;
+import com.hankcs.hanlp.seg.common.Term;
+
+import org.tartarus.snowball.ext.englishStemmer;
 
 public class PreProcess {
 
 	public static void main(String args[]) throws Exception {
 		PreProcess pp = new PreProcess();
-		Date start_date = new Date();
-		System.out.println("Extraction starts at:" + start_date);
+		System.out.println("Extraction starts at:" + new Date());
 		
-		String location = "/home/lcj/WikiExtractor/etc/";
-//		String location = "/Users/locke/Desktop/preprocess/";
+//		pp.duplicateEntitiesRemove("./etc/", "wiki-latest-pages-articles-multistream.result.xml");
 		
-//		pp.CLFilter(location+"zhwiki-latest-langlinks.2en.result.sql", location+"enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", location+"zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
-//		pp.getCLEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.xml", location+"zhwiki-latest-pages-articles-multistream.result.xml");
-		pp.matchEntities(location+"en_zh_cl_id_title.txt", location+"enwiki-latest-pages-articles-multistream.result.cl.xml", location+"zhwiki-latest-pages-articles-multistream.result.cl.xml");
+//		pp.CLFilter("./etc/zhwiki-latest-langlinks.2en.result.sql", "./etc/enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", "./etc/zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
+//		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/enwiki-latest-pages-articles-multistream.result.xml", "./etc/zhwiki-latest-pages-articles-multistream.result.xml");
+//		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/enwiki-latest-pages-articles-multistream.result.cl.xml", "./etc/zhwiki-latest-pages-articles-multistream.result.cl.xml");
 		
-		Date end_date = new Date();
-		double cost = (double)(end_date.getTime()-start_date.getTime())/1000.0/60.0;
-		System.out.println("Extraction ents at: " + end_date + "\tcost: " + cost + "min");
+
+//		pp.getText("./etc/enwiki-latest-pages-articles-multistream.result.xml", "en");
+		pp.getText("./etc/zhwiki-latest-pages-articles-multistream.result.xml", "zh");
+		
+//		pp.genTextualNetwork("./etc/enwiki.text", "en");
+//		pp.genTextualNetwork("/Users/locke/Desktop/a.txt", "en");
+		
 	}
 	
-	public void matchEntities(String en_zh_cl_id_title, String en_cl_pages, String zh_cl_pages) throws Exception {
+	public void genTextualNetwork(String pages, String lang) throws Exception {
+	
+	}
+	
+	public void getText(String pages, String lang) throws Exception {
+		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "wiki.text")));
+		String line = null;
+		if (lang.equals("en")) {
+			Set<String> stopwords = new HashSet<String>();
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("./stopwords.txt")));
+	        while (null != (line = bufferedReader.readLine())) {
+	        	stopwords.add(line.trim());
+	        }
+	        bufferedReader.close(); 
+	        englishStemmer stemmer = new englishStemmer();	        
+	        line = null;
+	        while (null != (line = bufferedReader_pages.readLine())) {
+	        	JSONObject page = new JSONObject(line);
+	        	String title = page.getString("title");
+	        	String article = page.getString("article");
+	    		
+	        	List<String> links = new ArrayList<String>();
+	        	Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
+	    		while (matcher.find()) {
+	    			links.add(matcher.group(0));
+	    		}
+	    		List<String> entity_links = new ArrayList<String>();
+	    		
+	    		for (String el : links) {
+	    			if (el.contains("|")) {
+	    				entity_links.add(el.substring(2, el.indexOf("|")).replace(" ", "_"));
+	    			} else {
+	    				entity_links.add(el.substring(2, el.length()-2).replace(" ", "_"));
+	    			}
+					article = article.replace(el, "");
+				}
+//	        	System.out.println(entity_links);
+	    		article = article.replaceAll("[^_a-zA-Z0-9\u4e00-\u9fa5]+", " ").replaceAll("\\s+", " ").trim();
+	    		String[] words = article.split(" ");
+	    		List<String> words2article = new ArrayList<String>();
+	    		for (String word : words) {
+	    			if (stopwords.contains(word) || word.length() < 2 || !StringUtils.isAlphaSpace(word)) {
+	    				continue;
+	    			}
+	    			stemmer.setCurrent(word);
+	    			if (stemmer.stem()==false){
+	    				continue;
+	    			}
+	    			words2article.add(stemmer.getCurrent());
+	    		}
+		        article = StringUtils.join(words2article, " ");
+//	    		System.out.println(article);
+	        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+        	}
+		} else {
+			Segment segment = HanLP.newSegment();
+			segment.enableNameRecognize(true);
+			segment.enableOrganizationRecognize(true);
+			segment.enablePlaceRecognize(true);
+			segment.enableTranslatedNameRecognize(true);
+			while (null != (line = bufferedReader_pages.readLine())) {
+	        	JSONObject page = new JSONObject(line);
+	        	String title = page.getString("title");
+	        	String article = page.getString("article");
+	    		
+	        	List<String> links = new ArrayList<String>();
+	        	Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
+	    		while (matcher.find()) {
+	    			links.add(matcher.group(0));
+	    		}
+	    		List<String> entity_links = new ArrayList<String>();
+	    		
+	    		for (String el : links) {
+	    			if (el.contains("|")) {
+	    				entity_links.add(el.substring(2, el.indexOf("|")).replace(" ", "_"));
+	    			} else {
+	    				entity_links.add(el.substring(2, el.length()-2).replace(" ", "_"));
+	    			}
+					article = article.replace(el, "");
+				}	    		
+	    		article = article.replaceAll( "[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]" , "").replaceAll("\\s+", " ").trim();
+	    		List<Term> words = segment.seg(article);
+	    		List<String> words2article = new ArrayList<String>();
+	    		for (Term word : words) {
+	    			words2article.add(word.word);
+	    		}
+		        article = StringUtils.join(words2article, " ");
+	    		System.out.println(article);
+	    		break;
+//	        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+			}
+		}
+        bufferedReader_pages.close();
+        bufferedWriter_text.close();
+	}
+	
+	public void numberAll(String en_pages, String zh_pages) throws Exception {
+		Map<String, String> en_entity_Id2Tit = new HashMap<String, String>();
+		Map<String, String> en_entity_Tit2Id = new HashMap<String, String>();
+
+//		    filter                         zhwiki.id.word
+//		enwiki.id.word      zhwiki.enwiki.cross.net.test   zhwiki.linkage.net
+//		enwiki.linkage.net  zhwiki.enwiki.cross.net.train  zhwiki.textual.net
+//		enwiki.textual.net  zhwiki.id.entity
+		
+		
+		BufferedReader bufferedReader_pages_en = new BufferedReader(new FileReader(new File(en_pages)));
+		BufferedWriter bufferedWriter_entity_en = new BufferedWriter(new FileWriter(new File("enwiki.id.entity")));
+		BufferedWriter bufferedWriter_word_en = new BufferedWriter(new FileWriter(new File("enwiki.id.word")));
+		
+		String line = null;
+        while (null != (line = bufferedReader_pages_en.readLine())) {
+        	JSONObject page = new JSONObject(line);
+        	String title = page.getString("title");
+        	bufferedWriter_entity_en.write(title + "\n");
+        	
+        	int id = en_entity_Id2Tit.size();
+        	en_entity_Id2Tit.put("e_en_"+id, title);
+        	en_entity_Tit2Id.put(title, "e_en_"+id);
+        	
+        	String article = page.getString("article");
+
+        }
+        
+        
+        
+        
+		BufferedReader bufferedReader_pages_zh = new BufferedReader(new FileReader(new File(zh_pages)));
+		
+        
+	}
+	
+	public void duplicateEntitiesRemove(String page_loc, String suffix) throws Exception {
+		String[] type = {"en", "zh"};
+		for (String t : type) {
+			BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
+			Map<String, String> pages_map = new HashMap<String, String>();
+			String line = null;
+	        while (null != (line = bufferedReader_pages.readLine())) {
+	        	if (t.equals("zh")) {
+	        		line = HanLP.convertToSimplifiedChinese(line).toLowerCase();
+	        	} else {
+	        		line = line.toLowerCase();
+	        	}
+	        	JSONObject page = new JSONObject(line);
+	        	page.getString("article");
+	        	page.getString("title");
+	        	if (pages_map.containsKey(page.getString("title"))) {
+	        		if (line.length() > pages_map.get(page.getString("title")).length()) {
+	        			pages_map.put(page.getString("title"), line);
+	        		}
+	        	} else {
+	        		pages_map.put(page.getString("title"), line);
+	        	}
+	        }
+	        bufferedReader_pages.close();
+	        System.out.println(t + "_pages after duplicateEntitiesRemove: " + pages_map.size());
+	        
+	        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(t + "_pages.json")));
+	        for (String k : pages_map.keySet()) {
+	        	bufferedWriter.write(pages_map.get(k) + "\n");
+	        }
+	        bufferedWriter.close();
+		}
+	}
+	
+	public void getMatchedCLEntities(String en_zh_cl_id_title, String en_cl_pages, String zh_cl_pages) throws Exception {
 		Map<String, String> en_cl_pages_titleid2page = new HashMap<String, String>();
 		Map<String, String> zh_cl_pages_titleid2page = new HashMap<String, String>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(en_cl_pages)));
 		String line = new String();
-        while (true) {
-            line = bufferedReader.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReader.readLine())) {            
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
             if (page.getString("article").equals("")==false) {
@@ -55,11 +216,7 @@ public class PreProcess {
         }
         bufferedReader.close();
         bufferedReader = new BufferedReader(new FileReader(new File(zh_cl_pages)));
-        while (true) {
-            line = bufferedReader.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReader.readLine())) {
             JSONObject page = new JSONObject(line);
             String titleid = page.getString("title") + "#####" + page.getString("id");
             if (page.getString("article").equals("")==false) {
@@ -75,11 +232,7 @@ public class PreProcess {
         Map<String, Integer> en_attrs = new LinkedHashMap<String, Integer>();
         Map<String, Integer> zh_attrs = new LinkedHashMap<String, Integer>();
         bufferedReader = new BufferedReader(new FileReader(new File(en_zh_cl_id_title)));
-        while (true) {
-            line = bufferedReader.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReader.readLine())) {
             String[] words = line.split("\t\t");
             String en_titleid = words[0] + "#####" + words[1];
             String zh_titleid = words[2] + "#####" + words[3];
@@ -143,19 +296,14 @@ public class PreProcess {
         bufferedWriter_attr_zh.close();
 	}
 	
-	public void getCLEntities(String en_zh_cl_id_title, String en_pages, String zh_pages) throws Exception {
-		
+	public void getAllCLEntities(String en_zh_cl_id_title, String en_pages, String zh_pages) throws Exception {
 		Map<String, String> cl_en_id2title = new HashMap<String, String>();
 		Map<String, String> cl_en_title2id = new HashMap<String, String>();
 		Map<String, String> cl_zh_id2title = new HashMap<String, String>();
 		Map<String, String> cl_zh_title2id = new HashMap<String, String>();		
 		BufferedReader bufferedReaderCL = new BufferedReader(new FileReader(new File(en_zh_cl_id_title)));
 		String line = new String();
-        while (true) {
-            line = bufferedReaderCL.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReaderCL.readLine())) {
             String[] words = line.split("\t\t");
             cl_en_id2title.put(words[1], words[0]);
             cl_en_title2id.put(words[0], words[1]);
@@ -168,11 +316,7 @@ public class PreProcess {
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(en_pages.replace(".xml", ".cl.xml"))));
         line = new String();
         int cnt = 0;
-        while (true) {
-            line = bufferedReader.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReader.readLine())) {
             JSONObject page = new JSONObject(line);
 //            System.out.println(page.get("id") + "\t\t" + page.get("title"));
             if (cl_en_id2title.containsKey( page.get("id") ) && cl_en_title2id.containsKey( page.get("title") )) {
@@ -189,11 +333,7 @@ public class PreProcess {
         bufferedReader = new BufferedReader(new FileReader(new File(zh_pages)));
         bufferedWriter = new BufferedWriter(new FileWriter(new File(zh_pages.replace(".xml", ".cl.xml"))));
         line = new String();
-        while (true) {
-            line = bufferedReader.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReader.readLine())) {
             JSONObject page = new JSONObject(line);
             if (cl_zh_id2title.containsKey( page.get("id") ) && cl_zh_title2id.containsKey( page.get("title") )) {
             	bufferedWriter.write(line + "\n");
@@ -211,11 +351,7 @@ public class PreProcess {
         String[] filter_words = {"Wikipedia:", "Category:", "Template:", "Portal:", "WikiProjects", "File:", "User:", "Help:", "Image:", "Module:",
                         		"list", "mediawiki", "categories", " articles"};
         String line = new String();
-        while (true) {
-            line = bufferedReader.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReader.readLine())) {
             boolean contains = false;     
             line = line.replace("\\'", "'");
             for (String word : filter_words) {
@@ -260,11 +396,7 @@ public class PreProcess {
 		Map<String, String> w_t_t_w = new HashMap<String, String>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(filename)));
 		String line = new String();
-        while (true) {
-            line = bufferedReader.readLine();
-            if (line == null) {
-            	break;
-            }
+        while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
             w_t_t_w.put(words[key_pos], words[1-key_pos]);
         }
