@@ -20,7 +20,7 @@ public class PreProcess {
 		PreProcess pp = new PreProcess();
 		System.out.println("Extraction starts at:" + new Date());
 		
-//		pp.duplicateEntitiesRemove("./etc/", "wiki-latest-pages-articles-multistream.result.xml");
+		pp.duplicateEntitiesRemove("./etc/", "wiki-latest-pages-articles-multistream.result.xml");
 		
 //		pp.CLFilter("./etc/zhwiki-latest-langlinks.2en.result.sql", "./etc/enwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml", "./etc/zhwiki-latest-pages-articles-multistream.id_titleresult.id_titlexml");
 //		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/enwiki-latest-pages-articles-multistream.result.xml", "./etc/zhwiki-latest-pages-articles-multistream.result.xml");
@@ -185,8 +185,19 @@ public class PreProcess {
 		String[] type = {"en", "zh"};
 		for (String t : type) {
 			BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
-			Map<String, String> pages_map = new HashMap<String, String>();
+			Set<String> title_set = new HashSet<String>();
 			String line = null;
+	        while (null != (line = bufferedReader_pages.readLine())) {
+	        	if (t.equals("zh")) {
+	        		line = HanLP.convertToSimplifiedChinese(line);
+	        	}
+	        	JSONObject page = new JSONObject(line);
+	        	title_set.add(page.getString("title").toLowerCase());
+	        }
+	        System.out.println(t + " size: " + title_set.size());
+	        bufferedReader_pages = new BufferedReader(new FileReader(new File(page_loc + t + suffix)));
+	        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(t + "_pages.json")));
+			line = null;
 			int cnt = 0;
 	        while (null != (line = bufferedReader_pages.readLine())) {
 	        	if (t.equals("zh")) {
@@ -200,20 +211,10 @@ public class PreProcess {
 	        	page.put("article", page.getString("article").toLowerCase());
 	        	page.put("title", page.getString("title").toLowerCase());
 	        	
-	        	if (pages_map.containsKey(page.getString("title"))) {
-	        		if (line.length() > pages_map.get(page.getString("title")).length()) {
-	        			pages_map.put(page.getString("title"), line);
-	        		}
-	        	} else {
-	        		pages_map.put(page.getString("title"), line);
+	        	if (title_set.contains(page.getString("title"))) {
+	        		bufferedWriter.write(page.toString() + "\n");
+	        		title_set.remove(page.getString("title"));
 	        	}
-	        }
-	        bufferedReader_pages.close();
-	        System.out.println(t + "_pages after duplicateEntitiesRemove: " + pages_map.size());
-	        
-	        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(t + "_pages.json")));
-	        for (String k : pages_map.keySet()) {
-	        	bufferedWriter.write(pages_map.get(k) + "\n");
 	        }
 	        bufferedWriter.close();
 		}
