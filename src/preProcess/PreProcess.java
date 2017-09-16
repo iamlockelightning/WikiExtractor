@@ -213,7 +213,7 @@ public class PreProcess {
 		        	page.put("title", page.getString("title").toLowerCase());
 	        	}
 	        	cnt += 1;
-	        	if (cnt%10000==0) {
+	        	if (cnt%1000000==0) {
 	        		System.out.println("__" + cnt);
 	        	}
 	        	
