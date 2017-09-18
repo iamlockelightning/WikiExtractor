@@ -20,19 +20,18 @@ public class PreProcess {
 		PreProcess pp = new PreProcess();
 		System.out.println("Extraction starts at:" + new Date());
 		
-		pp.duplicateEntitiesRemove("./etc/", "wiki-latest-pages-articles-multistream.result.xml");
-		System.out.println("lalalal");
+//		pp.duplicateEntitiesRemove("./etc/", "wiki-latest-pages-articles-multistream.result.xml");
 //		pp.CLFilter("./etc/zhwiki-latest-langlinks.2en.result.sql", "./etc/en_id_title.txt", "./etc/zh_id_title.txt");
 //		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.json", "./etc/zh_pages.json");
 		
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
 
-//		pp.getText("./etc/enwiki-latest-pages-articles-multistream.result.xml", "en");
-//		pp.getText("./etc/zhwiki-latest-pages-articles-multistream.result.xml", "zh");
+		pp.getText("./etc/en_pages.json", "en");
+		pp.getText("./etc/zh_pages.json", "zh");
 		
 //		pp.genTextualNetwork("./etc/enwiki.text", "en");
-//		pp.genTextualNetwork("/Users/locke/Desktop/a.txt", "en");
+//		pp.genTextualNetwork("./etc/zhwiki.text", "zh");
 		
 	}
 	
@@ -51,6 +50,8 @@ public class PreProcess {
         }
         bufferedReader.close();
         englishStemmer stemmer = new englishStemmer();
+        String[] filter_words = {"Wikipedia:", "Category:", "Template:", "Portal:", "WikiProjects", "File:", "User:", "Help:", "Image:", "Module:",
+        		"list", "mediawiki", "categories", " articles"};
         
 		if (lang.equals("en")) {	        
 	        line = null;
@@ -59,6 +60,17 @@ public class PreProcess {
 	        	String title = page.getString("title");
 	        	String article = page.getString("article");
 	    		
+	        	boolean contains = false;
+	        	for (String w : filter_words) {
+	            	if (title.contains(w.toLowerCase())) {
+	            		contains = true;
+	            		break;
+	            	}
+	            }
+	            if (contains) {
+	            	continue;
+	            }
+	            
 	        	List<String> links = new ArrayList<String>();
 	        	Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
 	    		while (matcher.find()) {
@@ -98,12 +110,24 @@ public class PreProcess {
 			segment.enableOrganizationRecognize(true);
 			segment.enablePlaceRecognize(true);
 			segment.enableTranslatedNameRecognize(true);
+			line = null;
 			
 			while (null != (line = bufferedReader_pages.readLine())) {
 	        	JSONObject page = new JSONObject(line);
 	        	String title = page.getString("title");
 	        	String article = page.getString("article");
 	    		
+	        	boolean contains = false;
+	        	for (String w : filter_words) {
+	            	if (title.contains(w.toLowerCase())) {
+	            		contains = true;
+	            		break;
+	            	}
+	            }
+	            if (contains) {
+	            	continue;
+	            }
+	            
 	        	List<String> links = new ArrayList<String>();
 	        	Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
 	    		while (matcher.find()) {
@@ -251,8 +275,8 @@ public class PreProcess {
         }
         bufferedReader.close();
         BufferedWriter bufferedWriter_enzhtitleid = new BufferedWriter(new FileWriter(new File("en_zh_cl_titleid.txt")));
-        BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File("en_cl_page.txt")));
-        BufferedWriter bufferedWriter_zh = new BufferedWriter(new FileWriter(new File("zh_cl_page.txt")));
+        BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File("en_cl_page.json")));
+        BufferedWriter bufferedWriter_zh = new BufferedWriter(new FileWriter(new File("zh_cl_page.json")));
         BufferedWriter bufferedWriter_attr_en = new BufferedWriter(new FileWriter(new File("en_cl_attr.txt")));
         BufferedWriter bufferedWriter_attr_zh = new BufferedWriter(new FileWriter(new File("zh_cl_attr.txt")));
         Map<String, Integer> en_attrs = new LinkedHashMap<String, Integer>();
