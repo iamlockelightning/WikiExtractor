@@ -27,16 +27,44 @@ public class PreProcess {
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
 
-		pp.getText("./etc/en_pages.json", "en");
-		pp.getText("./etc/zh_pages.json", "zh");
+//		pp.getText("./etc/en_pages.json", "en");
+//		pp.getText("./etc/zh_pages.json", "zh");
+		
+		pp.genPTEtextualInput("./etc/enwiki.text", "en");
+		pp.genPTEtextualInput("./etc/zhwiki.text", "zh");
 		
 //		pp.genTextualNetwork("./etc/enwiki.text", "en");
 //		pp.genTextualNetwork("./etc/zhwiki.text", "zh");
 		
 	}
 	
-	public void genTextualNetwork(String pages, String lang) throws Exception {
+	public void genPTEtextualInput(String text_file, String lang) throws Exception {
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_all.txt")));
+		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_all.txt")));
+		String line = new String();
+        while (null != (line = bufferedReader.readLine())) {
+            String words[] = line.split("\t\t");
+            bufferedWriter_title.write("e_"+words[0] + "\n");
+            String[] w_e = words[1].split("|||");
+            String a = new String(), b = new String();
+            if (w_e[0].length()>0) {
+            	a = "w_"+lang+"_" + w_e[0].replace(" ", " w_"+lang+"_");
+            }
+            if (w_e[1].length()>0) {
+            	b = "e_"+lang+"_" + w_e[0].replace(" ", " e_"+lang+"_");
+            }
+            bufferedWriter_text.write(a + " " + b + "\n");
+        }
+        bufferedReader.close();
+        bufferedWriter_text.close();
+        bufferedWriter_title.close();
+	}
 	
+	public void genTextualNetwork(String pages, String lang) throws Exception {
+		Map<String, String> en_entity_Id2Tit = new HashMap<String, String>();
+		Map<String, String> en_entity_Tit2Id = new HashMap<String, String>();
+		
 	}
 	
 	public void getText(String pages, String lang) throws Exception {
@@ -168,42 +196,6 @@ public class PreProcess {
 		}
         bufferedReader_pages.close();
         bufferedWriter_text.close();
-	}
-	
-	public void numberAll(String en_pages, String zh_pages) throws Exception {
-		Map<String, String> en_entity_Id2Tit = new HashMap<String, String>();
-		Map<String, String> en_entity_Tit2Id = new HashMap<String, String>();
-
-//		    filter                         zhwiki.id.word
-//		enwiki.id.word      zhwiki.enwiki.cross.net.test   zhwiki.linkage.net
-//		enwiki.linkage.net  zhwiki.enwiki.cross.net.train  zhwiki.textual.net
-//		enwiki.textual.net  zhwiki.id.entity
-		
-		
-		BufferedReader bufferedReader_pages_en = new BufferedReader(new FileReader(new File(en_pages)));
-		BufferedWriter bufferedWriter_entity_en = new BufferedWriter(new FileWriter(new File("enwiki.id.entity")));
-		BufferedWriter bufferedWriter_word_en = new BufferedWriter(new FileWriter(new File("enwiki.id.word")));
-		
-		String line = null;
-        while (null != (line = bufferedReader_pages_en.readLine())) {
-        	JSONObject page = new JSONObject(line);
-        	String title = page.getString("title");
-        	bufferedWriter_entity_en.write(title + "\n");
-        	
-        	int id = en_entity_Id2Tit.size();
-        	en_entity_Id2Tit.put("e_en_"+id, title);
-        	en_entity_Tit2Id.put(title, "e_en_"+id);
-        	
-        	String article = page.getString("article");
-
-        }
-        
-        
-        
-        
-		BufferedReader bufferedReader_pages_zh = new BufferedReader(new FileReader(new File(zh_pages)));
-		
-        
 	}
 	
 	public void duplicateEntitiesRemove(String page_loc, String suffix) throws Exception {
@@ -453,8 +445,5 @@ public class PreProcess {
         bufferedReader.close();
         return w_t_t_w;
 	}
-	
-	
-	
 	
 }
