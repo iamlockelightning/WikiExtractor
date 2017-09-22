@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.Segment;
@@ -45,14 +46,14 @@ public class PreProcess {
 		String line = new String();
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
-            bufferedWriter_title.write("e_"+words[0] + "\n");
-            String[] w_e = words[1].split("|||");
+            bufferedWriter_title.write("e_"+lang+"_" + words[0] + "\n");
+            String[] w_e = words[1].split("\\|\\|\\|");            
             String a = new String(), b = new String();
             if (w_e[0].length()>0) {
             	a = "w_"+lang+"_" + w_e[0].replace(" ", " w_"+lang+"_");
             }
             if (w_e[1].length()>0) {
-            	b = "e_"+lang+"_" + w_e[0].replace(" ", " e_"+lang+"_");
+            	b = "e_"+lang+"_" + w_e[1].replace(" ", " e_"+lang+"_");
             }
             bufferedWriter_text.write(a + " " + b + "\n");
         }
