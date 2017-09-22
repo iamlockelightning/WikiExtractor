@@ -31,15 +31,15 @@ public class PreProcess {
 //		pp.getText("./etc/en_pages.json", "en");
 //		pp.getText("./etc/zh_pages.json", "zh");
 		
-		pp.genPTEtextualInput("./etc/enwiki.text", "en");
-		pp.genPTEtextualInput("./etc/zhwiki.text", "zh");
+		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
+		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
 		
-//		pp.genTextualNetwork("./etc/enwiki.text", "en");
-//		pp.genTextualNetwork("./etc/zhwiki.text", "zh");
+//		pp.genLinkageNet("./etc/enwiki.text", "en");
+//		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
 	}
 	
-	public void genPTEtextualInput(String text_file, String lang) throws Exception {
+	public void genTextualNetPTEInput(String text_file, String lang) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
 		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_all.txt")));
 		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_all.txt")));
@@ -62,10 +62,31 @@ public class PreProcess {
         bufferedWriter_title.close();
 	}
 	
-	public void genTextualNetwork(String pages, String lang) throws Exception {
-		Map<String, String> en_entity_Id2Tit = new HashMap<String, String>();
-		Map<String, String> en_entity_Tit2Id = new HashMap<String, String>();
-		
+	public void genLinkageNet(String text_file, String lang) throws Exception {
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
+		BufferedWriter bufferedWriter_net = new BufferedWriter(new FileWriter(new File(lang + ".linkage.net")));
+		String line = new String();
+        while (null != (line = bufferedReader.readLine())) {
+            String words[] = line.split("\t\t");
+            String start = "e_"+lang+"_" + words[0];
+            Map<String, Integer> target = new HashMap<String, Integer>();
+            String[] w_e = words[1].split("\\|\\|\\|");
+            if (w_e[1].length()>0) {
+            	for (String s : w_e[1].split(" ")) {
+            		String e = "e_"+lang+"_" + s;
+            		if (target.containsKey(e)) {
+            			target.put(e, target.get(e)+1);
+            		} else {
+            			target.put(e, 1);
+            		}
+            	}
+            }
+            for (String k : target.keySet()) {
+            	bufferedWriter_net.write(start + " " + k + " " + target.get(k) + "l" + "\n");
+            }
+        }
+        bufferedReader.close();
+        bufferedWriter_net.close();
 	}
 	
 	public void getText(String pages, String lang) throws Exception {
