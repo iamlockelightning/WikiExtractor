@@ -47,15 +47,17 @@ public class PreProcess {
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
             bufferedWriter_title.write("e_"+lang+"_" + words[0] + "\n");
-            String[] w_e = words[1].split("\\|\\|\\|");            
+            String[] w_e = words[1].split("\\|\\|\\|");
             String a = new String(), b = new String();
             if (w_e[0].length()>0) {
             	a = "w_"+lang+"_" + w_e[0].replace(" ", " w_"+lang+"_");
             }
-            if (w_e[1].length()>0) {
-            	b = "e_"+lang+"_" + w_e[1].replace(" ", " e_"+lang+"_");
+            if (w_e.length > 1) {
+	            if (w_e[1].length()>0) {
+	            	b = "e_"+lang+"_" + w_e[1].replace(" ", " e_"+lang+"_");
+	            }
             }
-            bufferedWriter_text.write(a + " " + b + "\n");
+            bufferedWriter_text.write((a + " " + b).trim() + "\n");
         }
         bufferedReader.close();
         bufferedWriter_text.close();
