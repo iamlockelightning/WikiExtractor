@@ -28,11 +28,11 @@ public class PreProcess {
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
 
-//		pp.getText("./etc/en_pages.json", "en");
-//		pp.getText("./etc/zh_pages.json", "zh");
+		pp.getText("./etc/en_pages.json", "en");
+		pp.getText("./etc/zh_pages.json", "zh");
 		
-		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
-		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
+//		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
+//		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
 		
 //		pp.genLinkageNet("./etc/enwiki.text", "en");
 //		pp.genLinkageNet("./etc/zhwiki.text", "zh");
@@ -154,7 +154,9 @@ public class PreProcess {
 	    		}
 	    		
 		        article = StringUtils.join(words2article, " ").replaceAll("\\s+", " ").trim();
-	        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+		        if (article.equals("")==false) {
+		        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+		        }
         	}
 		} else {
 			Segment segment = HanLP.newSegment();
@@ -215,7 +217,9 @@ public class PreProcess {
 	    		}
 	    		
 		        article = StringUtils.join(words2article, " ").replaceAll("\\s+", " ").trim();
-	        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+		        if (article.equals("")==false) {
+		        	bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+		        }
 			}
 		}
         bufferedReader_pages.close();
