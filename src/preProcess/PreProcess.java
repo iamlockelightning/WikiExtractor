@@ -28,14 +28,14 @@ public class PreProcess {
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
 
-		pp.getText("./etc/en_pages.json", "en");
-		pp.getText("./etc/zh_pages.json", "zh");
+//		pp.getText("./etc/en_pages.json", "en");
+//		pp.getText("./etc/zh_pages.json", "zh");
 		
 //		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
 //		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
 		
-//		pp.genLinkageNet("./etc/enwiki.text", "en");
-//		pp.genLinkageNet("./etc/zhwiki.text", "zh");
+		pp.genLinkageNet("./etc/enwiki.text", "en");
+		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
 	}
 	
@@ -73,18 +73,20 @@ public class PreProcess {
             String start = "e_"+lang+"_" + words[0];
             Map<String, Integer> target = new HashMap<String, Integer>();
             String[] w_e = words[1].split("\\|\\|\\|");
-            if (w_e[1].length()>0) {
-            	for (String s : w_e[1].split(" ")) {
-            		String e = "e_"+lang+"_" + s;
-            		if (target.containsKey(e)) {
-            			target.put(e, target.get(e)+1);
-            		} else {
-            			target.put(e, 1);
-            		}
-            	}
-            }
-            for (String k : target.keySet()) {
-            	bufferedWriter_net.write(start + " " + k + " " + target.get(k) + "l" + "\n");
+            if (w_e.length>2) {
+	            if (w_e[1].length()>0) {
+	            	for (String s : w_e[1].split(" ")) {
+	            		String e = "e_"+lang+"_" + s;
+	            		if (target.containsKey(e)) {
+	            			target.put(e, target.get(e)+1);
+	            		} else {
+	            			target.put(e, 1);
+	            		}
+	            	}
+	            }
+	            for (String k : target.keySet()) {
+	            	bufferedWriter_net.write(start + " " + k + " " + target.get(k) + "l" + "\n");
+	            }
             }
         }
         bufferedReader.close();
