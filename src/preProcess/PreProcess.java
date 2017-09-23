@@ -5,6 +5,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.print.DocFlavor.STRING;
+import javax.swing.border.EtchedBorder;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
@@ -37,15 +40,42 @@ public class PreProcess {
 //		pp.genLinkageNet("./etc/enwiki.text", "en");
 //		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
-		pp.genInterNet("./etc/en_zh_cl_id_title.txt", "./etc/en_id_title.txt", "./etc/zh_id_title.txt");
-		
+//		pp.genCL("./etc/en_zh_cl_titleid.txt", "./etc/en_title_all.txt", "./etc/zh_title_all.txt");
+		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
 	}
 	
-	public void genInterNet(String en_zh_cl_id_title, String en_id_title, String zh_id_title) throws Exception {
-		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(en_zh_cl_id_title)));
+	public void sampleCL(String enwiki_zhwiki_cl, int train_num, int times, int test_num) throws Exception {
+		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(enwiki_zhwiki_cl)));
+		List<String> cls = new ArrayList<String>();
+		String line = new String();
+		while (null != (line = bufferedReader_cl.readLine())) {            
+			cls.add(line);
+        }
+		bufferedReader_cl.close();
+		
+		Collections.shuffle(cls);
+		
+		BufferedWriter bufferedWriter_test = new BufferedWriter(new FileWriter(new File("cl.test."+test_num+".net")));
+		for (int i = 0; i < test_num; i += 1) {
+			bufferedWriter_test.write(cls.get(0) + "\n");
+			cls.remove(0);
+		}
+		bufferedWriter_test.close();
+		
+		for (int i = 0; i < times; i += 1) {
+			BufferedWriter bufferedWriter_train = new BufferedWriter(new FileWriter(new File("cl.train."+(times+1)*train_num+".net")));
+			for (int j = 0; j < (i+1)*train_num; j += 1) {
+				bufferedWriter_train.write(cls.get(j) + "\n");
+			}
+			bufferedWriter_train.close();
+		}
+	}
+	
+	public void genCL(String en_zh_cl_titleid, String en_title_all, String zh_title_all) throws Exception {
+		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(en_zh_cl_titleid)));
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("enwiki_zhwiki_cl.txt")));
-		BufferedReader bufferedReader_en = new BufferedReader(new FileReader(new File(en_id_title)));
-		BufferedReader bufferedReader_zh = new BufferedReader(new FileReader(new File(zh_id_title)));
+		BufferedReader bufferedReader_en = new BufferedReader(new FileReader(new File(en_title_all)));
+		BufferedReader bufferedReader_zh = new BufferedReader(new FileReader(new File(zh_title_all)));
 		Set<String> en_title = new HashSet<String>();
 		Set<String> zh_title = new HashSet<String>();
 		
