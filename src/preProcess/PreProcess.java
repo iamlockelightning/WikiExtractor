@@ -73,7 +73,7 @@ public class PreProcess {
             String start = "e_"+lang+"_" + words[0];
             Map<String, Integer> target = new HashMap<String, Integer>();
             String[] w_e = words[1].split("\\|\\|\\|");
-            if (w_e.length>2) {
+            if (w_e.length>1) {
 	            if (w_e[1].length()>0) {
 	            	for (String s : w_e[1].split(" ")) {
 	            		String e = "e_"+lang+"_" + s;
@@ -85,7 +85,7 @@ public class PreProcess {
 	            	}
 	            }
 	            for (String k : target.keySet()) {
-	            	bufferedWriter_net.write(start + " " + k + " " + target.get(k) + "l" + "\n");
+	            	bufferedWriter_net.write(start + "\t" + k + "\t" + target.get(k) + "\tl" + "\n");
 	            }
             }
         }
