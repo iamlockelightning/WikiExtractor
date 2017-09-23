@@ -34,9 +34,42 @@ public class PreProcess {
 //		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
 //		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
 		
-		pp.genLinkageNet("./etc/enwiki.text", "en");
-		pp.genLinkageNet("./etc/zhwiki.text", "zh");
+//		pp.genLinkageNet("./etc/enwiki.text", "en");
+//		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
+		pp.genInterNet("./etc/en_zh_cl_id_title.txt", "./etc/en_id_title.txt", "./etc/zh_id_title.txt");
+		
+	}
+	
+	public void genInterNet(String en_zh_cl_id_title, String en_id_title, String zh_id_title) throws Exception {
+		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(en_zh_cl_id_title)));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("enwiki_zhwiki_cl.txt")));
+		BufferedReader bufferedReader_en = new BufferedReader(new FileReader(new File(en_id_title)));
+		BufferedReader bufferedReader_zh = new BufferedReader(new FileReader(new File(zh_id_title)));
+		Set<String> en_title = new HashSet<String>();
+		Set<String> zh_title = new HashSet<String>();
+		
+		String line = new String();
+		while (null != (line = bufferedReader_en.readLine())) {            
+            en_title.add(line);
+        }
+		bufferedReader_en.close();
+		
+		line = null;
+		while (null != (line = bufferedReader_zh.readLine())) {            
+			zh_title.add(line);
+        }
+		bufferedReader_zh.close();
+		
+		line = null;
+		while (null != (line = bufferedReader_cl.readLine())) {            
+            String[] words = line.split("\t\t");
+            if (en_title.contains("e_en_"+words[0].replace(" ", "_")) && zh_title.contains("e_zh_"+words[2].replace(" ", "_"))) {
+            	bufferedWriter.write("e_en_"+words[0].replace(" ", "_") + "\t" + "e_zh_"+words[2].replace(" ", "_") + "\n");
+            }
+        }
+		bufferedReader_cl.close();
+		bufferedWriter.close();
 	}
 	
 	public void genTextualNetPTEInput(String text_file, String lang) throws Exception {
