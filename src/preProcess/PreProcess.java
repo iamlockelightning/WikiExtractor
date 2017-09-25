@@ -26,11 +26,10 @@ public class PreProcess {
 //		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.json", "./etc/zh_pages.json");
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
-		
-//		pp.genTrainData("../PTEforHNE/workspace/cl.train.50000.net", "./etc/en_pages.json", "./etc/zh_pages.json");
-		
 //		pp.getText("./etc/en_pages.json", "en");
 //		pp.getText("./etc/zh_pages.json", "zh");
+		
+		pp.genTrainData("./etc/cl.train.50000.net", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
 //		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
 //		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
@@ -39,7 +38,89 @@ public class PreProcess {
 //		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
 //		pp.genCL("./etc/en_zh_cl_titleid.txt", "./etc/en_title_all.txt", "./etc/zh_title_all.txt");
-		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
+//		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
+	}
+	
+	public void genTrainData(String cl_train, String en_wiki_text, String zh_wiki_text) throws Exception {
+		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(cl_train)));
+		
+		Set<String> en_titles = new HashSet<String>(), sub_en_titles = new HashSet<String>();
+		Set<String> zh_titles = new HashSet<String>(), sub_zh_titles = new HashSet<String>();
+		
+		int JUMP = 2;
+		
+		String line = null;
+		while (null != (line = bufferedReader_cl.readLine())) {            
+			String[] words = line.split("\t");
+			en_titles.add(words[0]);
+			zh_titles.add(words[1]);
+        }
+		bufferedReader_cl.close();
+		
+		for (int i = 0; i < JUMP; i += 1) {
+			System.out.println("In JUMP:" + i);
+			line = null;
+			BufferedReader bufferedReader_en = new BufferedReader(new FileReader(new File(en_wiki_text)));
+			while (null != (line = bufferedReader_en.readLine())) {            
+				String[] words = line.split("\t\t");
+				if (en_titles.contains("e_en_"+words[0]) && words.length>1) {
+					String[] w_e = words[1].split("\\|\\|\\|");
+		            if (w_e.length>1) {
+		            	for (String s : w_e[1].split(" ")) {
+		            		String e = "e_en_" + s;
+		            		sub_en_titles.add(e);
+		            	}
+		            }
+				}
+	        }
+			bufferedReader_en.close();
+			
+			line = null;
+			BufferedReader bufferedReader_zh = new BufferedReader(new FileReader(new File(zh_wiki_text)));
+			while (null != (line = bufferedReader_zh.readLine())) {            
+				String[] words = line.split("\t\t");
+				if (zh_titles.contains("e_zh_"+words[0]) && words.length>1) {
+					String[] w_e = words[1].split("\\|\\|\\|");
+		            if (w_e.length>1) {
+		            	for (String s : w_e[1].split(" ")) {
+		            		String e = "e_zh_" + s;
+		            		sub_zh_titles.add(e);
+		            	}
+		            }
+				}
+	        }
+			bufferedReader_zh.close();
+			
+			System.out.println("en_titles:"+en_titles.size()+"\tsub_en_titles:"+sub_en_titles.size());
+			System.out.println("zh_titles:"+zh_titles.size()+"\tsub_zh_titles:"+sub_zh_titles.size());
+			en_titles.retainAll(sub_en_titles);
+			zh_titles.retainAll(sub_zh_titles);
+			System.out.println("after, en_titles:"+en_titles.size());
+			System.out.println("after, zh_titles:"+zh_titles.size());
+		}		
+		
+		BufferedReader bufferedReader_en = new BufferedReader(new FileReader(new File(en_wiki_text)));
+		BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File(en_wiki_text.replace(".text", ".50000.text"))));
+		line = null;
+		while (null != (line = bufferedReader_en.readLine())) {            
+			String[] words = line.split("\t\t");
+			if (en_titles.contains("e_en_"+words[0])) {
+				bufferedWriter_en.write(line + "\n");
+			}
+        }
+		bufferedReader_en.close();
+		bufferedWriter_en.close();
+		
+		BufferedReader bufferedReader_zh = new BufferedReader(new FileReader(new File(zh_wiki_text)));
+		BufferedWriter bufferedWriter_zh = new BufferedWriter(new FileWriter(new File(zh_wiki_text.replace(".text", ".50000.text"))));
+		while (null != (line = bufferedReader_zh.readLine())) {            
+			String[] words = line.split("\t\t");
+			if (zh_titles.contains("e_zh_"+words[0])) {
+				bufferedWriter_zh.write(line + "\n");
+			}
+        }
+		bufferedReader_zh.close();
+		bufferedWriter_zh.close();
 	}
 	
 	public void sampleCL(String enwiki_zhwiki_cl, int train_num, int times, int test_num) throws Exception {
