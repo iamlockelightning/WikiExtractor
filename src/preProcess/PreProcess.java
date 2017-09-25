@@ -29,7 +29,7 @@ public class PreProcess {
 //		pp.getText("./etc/en_pages.json", "en");
 //		pp.getText("./etc/zh_pages.json", "zh");
 		
-//		pp.genTrainData("./etc/cl.train.50000.net", "./etc/enwiki.text", "./etc/zhwiki.text");
+//		pp.genTrainData("./etc/cl.train.50000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
 //		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
 //		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
@@ -41,10 +41,10 @@ public class PreProcess {
 		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
 	}
 	
-	public void genTrainData(String cl_train, String en_wiki_text, String zh_wiki_text) throws Exception {
+	public void genTrainData(String cl_train, String cl_all, String en_wiki_text, String zh_wiki_text) throws Exception {
 		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(cl_train)));
 		
-		Set<String> en_titles = new HashSet<String>(), sub_en_titles = new HashSet<String>();
+		Set<String> en_titles = new HashSet<String>(), sub_en_titles = new HashSet<String>(), pre_en_titles = new HashSet<String>();
 		Set<String> zh_titles = new HashSet<String>(), sub_zh_titles = new HashSet<String>();
 		
 		int JUMP = 2;
@@ -53,6 +53,7 @@ public class PreProcess {
 		while (null != (line = bufferedReader_cl.readLine())) {            
 			String[] words = line.split("\t");
 			en_titles.add(words[0]);
+			pre_en_titles.add(words[0]);
 			zh_titles.add(words[1]);
         }
 		bufferedReader_cl.close();
@@ -98,6 +99,28 @@ public class PreProcess {
 			System.out.println("after, en_titles:"+en_titles.size());
 			System.out.println("after, zh_titles:"+zh_titles.size());
 		}		
+		
+		line = null;
+		BufferedReader bufferedReader_cl_all = new BufferedReader(new FileReader(new File(cl_all)));
+		Set<String> test_titles = new HashSet<String>();
+		while (null != (line = bufferedReader_cl_all.readLine())) {            
+			String[] words = line.split("\t");
+			test_titles.add(words[0]);
+        }
+		bufferedReader_cl_all.close();
+		test_titles.retainAll(en_titles);
+		System.out.println("test_titles:" + test_titles.size());
+		
+		bufferedReader_cl_all = new BufferedReader(new FileReader(new File(cl_all)));
+		BufferedWriter bufferedWriter_cl = new BufferedWriter(new FileWriter(new File("cl.test.net")));
+		while (null != (line = bufferedReader_cl_all.readLine())) {            
+			String[] words = line.split("\t");
+			if (test_titles.contains(words[0])==true && pre_en_titles.contains(words[0])==false) {
+				bufferedWriter_cl.write(line + "\n");
+			}
+        }
+		bufferedReader_cl_all.close();
+		bufferedWriter_cl.close();
 		
 		BufferedReader bufferedReader_en = new BufferedReader(new FileReader(new File(en_wiki_text)));
 		BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File(en_wiki_text.replace(".text", ".50000.text"))));
