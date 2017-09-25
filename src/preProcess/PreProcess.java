@@ -29,7 +29,7 @@ public class PreProcess {
 //		pp.getText("./etc/en_pages.json", "en");
 //		pp.getText("./etc/zh_pages.json", "zh");
 		
-		pp.genTrainData("./etc/cl.train.50000.net", "./etc/enwiki.text", "./etc/zhwiki.text");
+//		pp.genTrainData("./etc/cl.train.50000.net", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
 //		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
 //		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
@@ -38,7 +38,7 @@ public class PreProcess {
 //		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
 //		pp.genCL("./etc/en_zh_cl_titleid.txt", "./etc/en_title_all.txt", "./etc/zh_title_all.txt");
-//		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
+		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
 	}
 	
 	public void genTrainData(String cl_train, String en_wiki_text, String zh_wiki_text) throws Exception {
@@ -93,8 +93,8 @@ public class PreProcess {
 			
 			System.out.println("en_titles:"+en_titles.size()+"\tsub_en_titles:"+sub_en_titles.size());
 			System.out.println("zh_titles:"+zh_titles.size()+"\tsub_zh_titles:"+sub_zh_titles.size());
-			en_titles.retainAll(sub_en_titles);
-			zh_titles.retainAll(sub_zh_titles);
+			en_titles.addAll(sub_en_titles);
+			zh_titles.addAll(sub_zh_titles);
 			System.out.println("after, en_titles:"+en_titles.size());
 			System.out.println("after, zh_titles:"+zh_titles.size());
 		}		
