@@ -31,14 +31,14 @@ public class PreProcess {
 		
 //		pp.genTrainData("./etc/cl.train.50000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
-//		pp.genTextualNetPTEInput("./etc/enwiki.text", "en");
-//		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh");
+		pp.genTextualNetPTEInput("./etc/enwiki.50000.text", "en");
+		pp.genTextualNetPTEInput("./etc/zhwiki.50000.text", "zh");
 		
 //		pp.genLinkageNet("./etc/enwiki.text", "en");
 //		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
 //		pp.genCL("./etc/en_zh_cl_titleid.txt", "./etc/en_title_all.txt", "./etc/zh_title_all.txt");
-		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
+//		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
 	}
 	
 	public void genTrainData(String cl_train, String cl_all, String en_wiki_text, String zh_wiki_text) throws Exception {
@@ -206,8 +206,8 @@ public class PreProcess {
 	
 	public void genTextualNetPTEInput(String text_file, String lang) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
-		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_all.txt")));
-		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_all.txt")));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_50000_all.txt")));
+		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_50000_all.txt")));
 		String line = new String();
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
@@ -231,7 +231,7 @@ public class PreProcess {
 	
 	public void genLinkageNet(String text_file, String lang) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
-		BufferedWriter bufferedWriter_net = new BufferedWriter(new FileWriter(new File(lang + ".linkage.net")));
+		BufferedWriter bufferedWriter_net = new BufferedWriter(new FileWriter(new File(lang + ".linkage.50000.net")));
 		String line = new String();
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
