@@ -5,12 +5,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.print.DocFlavor.STRING;
-import javax.swing.border.EtchedBorder;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.Segment;
@@ -25,12 +21,14 @@ public class PreProcess {
 		System.out.println("Extraction starts at:" + new Date());
 		
 //		pp.duplicateEntitiesRemove("./etc/", "wiki-latest-pages-articles-multistream.result.xml");
+		
 //		pp.CLFilter("./etc/zhwiki-latest-langlinks.2en.result.sql", "./etc/en_id_title.txt", "./etc/zh_id_title.txt");
 //		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.json", "./etc/zh_pages.json");
-		
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
-
+		
+//		pp.genTrainData("../PTEforHNE/workspace/cl.train.50000.net", "./etc/en_pages.json", "./etc/zh_pages.json");
+		
 //		pp.getText("./etc/en_pages.json", "en");
 //		pp.getText("./etc/zh_pages.json", "zh");
 		
@@ -57,15 +55,15 @@ public class PreProcess {
 		
 		BufferedWriter bufferedWriter_test = new BufferedWriter(new FileWriter(new File("cl.test."+test_num+".net")));
 		for (int i = 0; i < test_num; i += 1) {
-			bufferedWriter_test.write(cls.get(0) + "\n");
+			bufferedWriter_test.write(cls.get(0) + "\t1\tc\n");
 			cls.remove(0);
 		}
 		bufferedWriter_test.close();
 		
 		for (int i = 0; i < times; i += 1) {
-			BufferedWriter bufferedWriter_train = new BufferedWriter(new FileWriter(new File("cl.train."+(times+1)*train_num+".net")));
+			BufferedWriter bufferedWriter_train = new BufferedWriter(new FileWriter(new File("cl.train."+(i+1)*train_num+".net")));
 			for (int j = 0; j < (i+1)*train_num; j += 1) {
-				bufferedWriter_train.write(cls.get(j) + "\n");
+				bufferedWriter_train.write(cls.get(j) + "\t1\tc\n");
 			}
 			bufferedWriter_train.close();
 		}
