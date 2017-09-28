@@ -29,16 +29,16 @@ public class PreProcess {
 //		pp.getText("./etc/en_pages.json", "en");
 //		pp.getText("./etc/zh_pages.json", "zh");
 		
-//		pp.genTrainData("./etc/cl.train.50000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
+//		pp.genTrainData("./etc/cl.train.40000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
-		pp.genTextualNetPTEInput("./etc/enwiki.50000.text", "en");
-		pp.genTextualNetPTEInput("./etc/zhwiki.50000.text", "zh");
+//		pp.genTextualNetPTEInput("./etc/enwiki.40000.text", "en");
+//		pp.genTextualNetPTEInput("./etc/zhwiki.40000.text", "zh");
 		
-//		pp.genLinkageNet("./etc/enwiki.text", "en");
-//		pp.genLinkageNet("./etc/zhwiki.text", "zh");
+//		pp.genLinkageNet("./etc/enwiki.40000.text", "en");
+//		pp.genLinkageNet("./etc/zhwiki.40000.text", "zh");
 		
 //		pp.genCL("./etc/en_zh_cl_titleid.txt", "./etc/en_title_all.txt", "./etc/zh_title_all.txt");
-//		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 50000, 4, 3000);
+//		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 40000, 4, 3000);
 	}
 	
 	public void genTrainData(String cl_train, String cl_all, String en_wiki_text, String zh_wiki_text) throws Exception {
@@ -98,8 +98,8 @@ public class PreProcess {
 			zh_titles.addAll(sub_zh_titles);
 			System.out.println("after, en_titles:"+en_titles.size());
 			System.out.println("after, zh_titles:"+zh_titles.size());
-		}		
-		
+		}
+
 		line = null;
 		BufferedReader bufferedReader_cl_all = new BufferedReader(new FileReader(new File(cl_all)));
 		Set<String> test_titles = new HashSet<String>();
@@ -123,7 +123,7 @@ public class PreProcess {
 		bufferedWriter_cl.close();
 		
 		BufferedReader bufferedReader_en = new BufferedReader(new FileReader(new File(en_wiki_text)));
-		BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File(en_wiki_text.replace(".text", ".50000.text"))));
+		BufferedWriter bufferedWriter_en = new BufferedWriter(new FileWriter(new File(en_wiki_text.replace(".text", ".40000.text"))));
 		line = null;
 		while (null != (line = bufferedReader_en.readLine())) {            
 			String[] words = line.split("\t\t");
@@ -135,7 +135,7 @@ public class PreProcess {
 		bufferedWriter_en.close();
 		
 		BufferedReader bufferedReader_zh = new BufferedReader(new FileReader(new File(zh_wiki_text)));
-		BufferedWriter bufferedWriter_zh = new BufferedWriter(new FileWriter(new File(zh_wiki_text.replace(".text", ".50000.text"))));
+		BufferedWriter bufferedWriter_zh = new BufferedWriter(new FileWriter(new File(zh_wiki_text.replace(".text", ".40000.text"))));
 		while (null != (line = bufferedReader_zh.readLine())) {            
 			String[] words = line.split("\t\t");
 			if (zh_titles.contains("e_zh_"+words[0])) {
@@ -206,8 +206,8 @@ public class PreProcess {
 	
 	public void genTextualNetPTEInput(String text_file, String lang) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
-		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_50000_all.txt")));
-		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_50000_all.txt")));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_40000_all.txt")));
+		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_40000_all.txt")));
 		String line = new String();
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
@@ -231,7 +231,7 @@ public class PreProcess {
 	
 	public void genLinkageNet(String text_file, String lang) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
-		BufferedWriter bufferedWriter_net = new BufferedWriter(new FileWriter(new File(lang + ".linkage.50000.net")));
+		BufferedWriter bufferedWriter_net = new BufferedWriter(new FileWriter(new File(lang + ".linkage.40000.net")));
 		String line = new String();
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
