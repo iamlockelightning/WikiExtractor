@@ -86,4 +86,9 @@
             <classpath refid="WikiExtractor.classpath"/>
         </java>
     </target>
+  	<target name="Learner">
+        <java classname="learner.Learner" failonerror="true" fork="yes">
+            <classpath refid="WikiExtractor.classpath"/>
+        </java>
+    </target>
 </project>
