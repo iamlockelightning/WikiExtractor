@@ -30,26 +30,28 @@ public class Learner {
 	}
 	
 	public void testFilter(String all_words_node, String cl_test_file, int cl_test_num) throws Exception {
-		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(cl_test_file)));
+		BufferedReader bufferedReader_all = new BufferedReader(new FileReader(new File(all_words_node)));
 		List<String> en_list = new ArrayList<String>();
 		String line = null;
-		while (null != (line = bufferedReader_cl.readLine())) {
+		while (null != (line = bufferedReader_all.readLine())) {
 			if (line.startsWith("e_")) {
 				en_list.add(line);
 			}
         }
-		bufferedReader_cl.close();
+		bufferedReader_all.close();
+		System.out.println("en_list.size():" + en_list.size());
 		
-		BufferedReader bufferedReader_all = new BufferedReader(new FileReader(new File(all_words_node)));
+		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(cl_test_file)));
 		List<String> cl_list = new ArrayList<String>();
 		line = null;
-		while (null != (line = bufferedReader_all.readLine())) {
-			String[] words = line.split(" ");
+		while (null != (line = bufferedReader_cl.readLine())) {
+			String[] words = line.split("\t");
 			if (en_list.contains(words[0]) && en_list.contains(words[1])) {
 				cl_list.add(line);
 			}
         }
-		bufferedReader_all.close();
+		bufferedReader_cl.close();
+		System.out.println("cl_list.size():" + cl_list.size());
 		
 		if (cl_list.size()>cl_test_num) {
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("cl.test." + cl_test_num + ".L")));
