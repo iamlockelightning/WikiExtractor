@@ -31,22 +31,22 @@ public class Learner {
 	
 	public void testFilter(String all_words_node, String cl_test_file, int cl_test_num) throws Exception {
 		BufferedReader bufferedReader_all = new BufferedReader(new FileReader(new File(all_words_node)));
-		List<String> en_list = new ArrayList<String>();
+		Set<String> en_set = new HashSet<String>();
 		String line = null;
 		while (null != (line = bufferedReader_all.readLine())) {
-			if (line.startsWith("e_")) {
-				en_list.add(line);
+			if (line.startsWith("e_zh_") || line.startsWith("e_en_")) {
+				en_set.add(line);
 			}
         }
 		bufferedReader_all.close();
-		System.out.println("en_list.size():" + en_list.size());
+		System.out.println("en_set.size():" + en_set.size());
 		
 		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(cl_test_file)));
 		List<String> cl_list = new ArrayList<String>();
 		line = null;
 		while (null != (line = bufferedReader_cl.readLine())) {
 			String[] words = line.split("\t");
-			if (en_list.contains(words[0]) && en_list.contains(words[1])) {
+			if (en_set.contains(words[0]) && en_set.contains(words[1])) {
 				cl_list.add(line);
 			}
         }
