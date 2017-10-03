@@ -129,12 +129,15 @@ public class Learner {
 				}
 				bufferedWriter_train_w.write(hs.get(t) + "\t" + es.get(t) + "\n");
 				for (int i = 0; i < hs.size(); i += 1) {
+					if (i >= n*patch && i < (n+1)*patch) {
+						continue;
+					}
 					for (int j = 0; j < es.size(); j += 1) {
-						if (i==j) {
+						if (i==j || (j >= n*patch && j < (n+1)*patch)) {
 							continue;
 						}
 						StringBuilder data_line = new StringBuilder("");
-						for (int ii = 0; ii < DIM; i += 1) {
+						for (int ii = 0; ii < DIM; ii += 1) {
 							data_line.append((Math.abs(emb_dict.get(hs.get(i)).get(ii) - emb_dict.get(es.get(i)).get(ii)) - 
 									Math.abs(emb_dict.get(hs.get(i)).get(ii) - emb_dict.get(es.get(j)).get(ii))) + ",");
 						}
