@@ -22,9 +22,9 @@ public class Learner {
 	public static void main(String args[]) throws Exception {
 		Learner learner = new Learner();
 		
-		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
+//		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
 		
-//		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/ww.word.emb");
+		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/ww.word.emb");
 		
 //		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/ww.word.emb", 2);
 	}
@@ -109,6 +109,7 @@ public class Learner {
 		header.append("@DATA\n");
 
 		int patch = cls.size() / fold_num;
+		new File(cls.size()+"fold"+fold_num+"/").mkdirs();
 		for (int n = 0; n < fold_num; n += 1) {
 			BufferedWriter bufferedWriter_train = new BufferedWriter(new FileWriter(new File(cls.size()+"fold"+fold_num+"/cl.train.fold."+n+".weka")));
 			BufferedWriter bufferedWriter_train_w = new BufferedWriter(new FileWriter(new File(cls.size()+"fold"+fold_num+"/cl.train.fold."+n+".word")));
