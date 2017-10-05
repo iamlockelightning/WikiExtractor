@@ -24,9 +24,9 @@ public class Learner {
 		
 //		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
 		
-		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/ww.word.emb");
+//		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/ww.word.emb");
 		
-//		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/ww.word.emb", 2);
+		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/ww.word.emb", 2);
 	}
 	
 	public void testFilter(String all_words_node, String cl_test_file, int cl_test_num) throws Exception {
@@ -166,8 +166,9 @@ public class Learner {
 		System.out.println("emb_dict size:" + emb_dict.size());
 		
 		for (int n = 0; n < fold_num; n++) {
-			System.out.println("Train fold:" + n + ">>>");
+			System.out.println("Train fold:" + n + " >>>");
 			BufferedReader in = new BufferedReader(new FileReader(new File(file_dir+"cl.train.fold."+n+".weka")));
+			System.out.println("loading...");
 			Instances train_instances = new Instances(in);
 			train_instances.setClassIndex(train_instances.numAttributes()-1);
 			train_instances.randomize(new Random()); 
@@ -181,6 +182,7 @@ public class Learner {
 			LinearRegression classifier = new LinearRegression();
 			String[] options = {""};
 			classifier.setOptions(options);
+			System.out.println("training...");
 			classifier.buildClassifier(train_instances);
 			coeffs = classifier.coefficients();
 			
@@ -193,6 +195,7 @@ public class Learner {
 				train_es.add(words[1]);
 	        }
 			in.close();
+			System.out.println("train_hs size:" + train_hs.size() + "\ttrain_es size:" + train_es.size());
 			
 			List<Double> pos_scores = new ArrayList<Double>(), neg_scores = new ArrayList<Double>();
 			for (int i = 0; i < train_hs.size(); i += 1) {
@@ -252,7 +255,6 @@ public class Learner {
 			}
 			System.out.println("Threshold:=" + threshold + ", F1-Score:=" + best_f1);
 			
-			
 			System.out.println("Test fold:" + n + ">>>");
 			List<String> test_hs = new ArrayList<String>(), test_es = new ArrayList<String>();
 			in = new BufferedReader(new FileReader(new File(file_dir+"cl.test.fold."+n+".word")));
@@ -263,6 +265,7 @@ public class Learner {
 				test_es.add(words[1]);
 	        }
 			in.close();
+			System.out.println("test_hs size:" + test_hs.size() + "\ttest_es size:" + test_es.size());
 			
 			int tp = 0, pre = 0, rec = 0;
 			for (int i = 0; i < test_hs.size(); i += 1) {
