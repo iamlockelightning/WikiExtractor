@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/xmlbeans-2.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/hanlp-portable-1.3.4.jar"/>
 	<classpathentry kind="lib" path="lib/weka.jar"/>
+	<classpathentry kind="lib" path="lib/mtj-0.9.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
