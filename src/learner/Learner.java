@@ -20,6 +20,7 @@ import weka.core.Instances;
 public class Learner {
 	
 	public static void main(String args[]) throws Exception {
+		System.out.println(Runtime.getRuntime().maxMemory() / 1000000);
 		Learner learner = new Learner();
 		
 //		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
