@@ -88,7 +88,7 @@
         </java>
     </target>
   	<target name="Learner">
-        <java classname="learner.Learner" failonerror="true" fork="yes" memoryMaximumSize="256g" memoryInitialSize="1024m">
+        <java classname="learner.Learner" failonerror="true" fork="yes">
             <classpath refid="WikiExtractor.classpath"/>
         </java>
     </target>

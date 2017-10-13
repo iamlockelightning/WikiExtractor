@@ -5,6 +5,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryPoolMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,15 +22,27 @@ import weka.core.Instances;
 
 public class Learner {
 	
+	static String mb (long s) {
+	    return String.format("%d (%.2f M)", s, (double)s / (1024 * 1024));
+	  }
+	
 	public static void main(String args[]) throws Exception {
-		System.out.println(Runtime.getRuntime().maxMemory() / 1000000);
+		System.out.println("Runtime max: " + mb(Runtime.getRuntime().maxMemory()));
+	    MemoryMXBean m = ManagementFactory.getMemoryMXBean();
+	    System.out.println("Non-heap: " + mb(m.getNonHeapMemoryUsage().getMax()));
+	    System.out.println("Heap: " + mb(m.getHeapMemoryUsage().getMax()));
+	    for (MemoryPoolMXBean mp : ManagementFactory.getMemoryPoolMXBeans()) {
+	    	System.out.println("Pool: " + mp.getName() + " (type " + mp.getType() + ")" + " = " + mb(mp.getUsage().getMax()));
+	    }
+	    // Eden + 2*Survivor + Tenured = 1024M java -Xmx1024m -XX:NewRatio=3 -XX:SurvivorRatio=6 # Young:Tenured = (Eden + 2*Survivor):Tenured = 1:3 = 256m:768m # Survivor:Eden = 1:6 = 32m:192m
+	
 		Learner learner = new Learner();
 		
 //		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
 		
-//		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/ww.word.emb");
+//		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/word.emb");
 		
-		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/ww.word.emb", 2);
+		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/word.emb", 2);
 	}
 	
 	public void testFilter(String all_words_node, String cl_test_file, int cl_test_num) throws Exception {
