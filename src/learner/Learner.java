@@ -216,6 +216,7 @@ public class Learner {
 			List<Double> pos_scores = new ArrayList<Double>(), neg_scores = new ArrayList<Double>();
 			for (int i = 0; i < train_hs.size(); i += 1) {
 				pos_scores.add(score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(i)), coeffs));
+				System.out.println("train Pos score: " + score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(i)), coeffs));
 				Set<Integer> neg_id = new HashSet<Integer>();
 				for (int j = 0; j < neg_num; j += 1) {
 					int k = rand.nextInt(train_es.size());
@@ -227,6 +228,7 @@ public class Learner {
 				}
 				for (Integer k : neg_id) {
 					neg_scores.add(score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(k)), coeffs));
+					System.out.println("train Neg score: " + score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(k)), coeffs));
 				}
 			}
 			
@@ -269,7 +271,7 @@ public class Learner {
 				}
 				min += 0.001;
 			}
-			System.out.println("Threshold:=" + threshold + ", F1-Score:=" + best_f1);
+			System.out.println("Threshold:=" + threshold + ", best F1-Score:=" + best_f1);
 			
 			System.out.println("Test fold:" + n + ">>>");
 			List<String> test_hs = new ArrayList<String>(), test_es = new ArrayList<String>();
@@ -286,6 +288,8 @@ public class Learner {
 			int tp = 0, pre = 0, rec = 0;
 			for (int i = 0; i < test_hs.size(); i += 1) {
 				rec += 1;
+				System.out.println("test Pos score: " + score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(i)), coeffs));
+				
 				if (score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(i)), coeffs) > threshold) {
 					tp += 1;
 					pre += 1;
@@ -300,6 +304,7 @@ public class Learner {
 					}
 				}
 				for (Integer k : neg_id) {
+					System.out.println("test Neg score: " + score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(k)), coeffs));
 					if (score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(k)), coeffs) > threshold) {
 						pre += 1;
 					}
