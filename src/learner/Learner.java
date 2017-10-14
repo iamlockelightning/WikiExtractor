@@ -357,9 +357,14 @@ public class Learner {
                 return mapping1.getValue().compareTo(mapping2.getValue());
             }
         });
+        int cnt = 10;
         System.out.println("Closest to : " + word + " is:");
         for (Map.Entry<String, Float> item : zh_list) {
         	System.out.println("[" + item.getKey() + ", " + item.getValue() + "]");
+        	cnt -= 1;
+        	if (cnt == 0) {
+        		break;
+        	}
         }
         System.out.println("--------------------------------");
 	}
