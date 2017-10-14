@@ -10,8 +10,10 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryPoolMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +44,9 @@ public class Learner {
 		
 //		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/word.emb");
 		
-		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/word.emb", 2);
+//		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/word.emb", 2);
+		
+		learner.testEmb("../PTEforHNE/workspace/word.emb");
 	}
 	
 	public void testFilter(String all_words_node, String cl_test_file, int cl_test_num) throws Exception {
@@ -216,7 +220,7 @@ public class Learner {
 			List<Double> pos_scores = new ArrayList<Double>(), neg_scores = new ArrayList<Double>();
 			for (int i = 0; i < train_hs.size(); i += 1) {
 				pos_scores.add(score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(i)), coeffs));
-				System.out.println("train Pos score: " + score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(i)), coeffs));
+//				System.out.println("train Pos score: " + score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(i)), coeffs));
 				Set<Integer> neg_id = new HashSet<Integer>();
 				for (int j = 0; j < neg_num; j += 1) {
 					int k = rand.nextInt(train_es.size());
@@ -228,7 +232,7 @@ public class Learner {
 				}
 				for (Integer k : neg_id) {
 					neg_scores.add(score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(k)), coeffs));
-					System.out.println("train Neg score: " + score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(k)), coeffs));
+//					System.out.println("train Neg score: " + score(emb_dict.get(train_hs.get(i)), emb_dict.get(train_es.get(k)), coeffs));
 				}
 			}
 			
@@ -288,8 +292,7 @@ public class Learner {
 			int tp = 0, pre = 0, rec = 0;
 			for (int i = 0; i < test_hs.size(); i += 1) {
 				rec += 1;
-				System.out.println("test Pos score: " + score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(i)), coeffs));
-				
+//				System.out.println("test Pos score: " + score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(i)), coeffs));
 				if (score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(i)), coeffs) > threshold) {
 					tp += 1;
 					pre += 1;
@@ -304,7 +307,7 @@ public class Learner {
 					}
 				}
 				for (Integer k : neg_id) {
-					System.out.println("test Neg score: " + score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(k)), coeffs));
+//					System.out.println("test Neg score: " + score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(k)), coeffs));
 					if (score(emb_dict.get(test_hs.get(i)), emb_dict.get(test_es.get(k)), coeffs) > threshold) {
 						pre += 1;
 					}
@@ -315,6 +318,62 @@ public class Learner {
 					+ ", Recall:=" + 1.0 * tp / rec
 					+ ", F1-Score:=" + 2.0 * tp / (pre + rec));
 		}
+	}
+	
+	public void testEmb(String emb_file) throws Exception {
+		int DIM = -1;
+		Map<String, List<Float>> emb_dict = new HashMap<String, List<Float>>();
+		BufferedReader bufferedReader_emb = new BufferedReader(new FileReader(new File(emb_file)));
+		String line = bufferedReader_emb.readLine();
+		while (null != (line = bufferedReader_emb.readLine())) {            
+			String[] words = line.split(" ");
+			if (words[0].startsWith("e_zh_")) {
+				List<Float> vec = new ArrayList<Float>();
+				for (int i = 1; i < words.length; i += 1) {
+					vec.add(Float.parseFloat(words[i]));
+				}
+				emb_dict.put(words[0], vec);
+				DIM = emb_dict.get(words[0]).size();
+			}
+        }
+		bufferedReader_emb.close();
+		System.out.println("e_zh_ emb_dict size:" + emb_dict.size());
+		
+		findNearst(emb_dict, "e_zh_数学表达式");
+		findNearst(emb_dict, "e_zh_编译");
+		findNearst(emb_dict, "e_zh_台湾股市");
+	}
+	
+	public void findNearst(Map<String, List<Float>> emb_dict, String word) throws Exception {
+		Map<String, Float> val_dict = new LinkedHashMap<String, Float>();
+		for (String k : emb_dict.keySet()) {
+			val_dict.put(k, cos_dist(emb_dict.get(word), emb_dict.get(k)));
+		}
+		// 通过ArrayList构造函数把map.entrySet()转换成list
+        List<Map.Entry<String, Float>> zh_list = new ArrayList<Map.Entry<String, Float>>(val_dict.entrySet());
+        // 通过比较器实现比较排序
+        Collections.sort(zh_list, new Comparator<Map.Entry<String, Float>>() {
+            public int compare(Map.Entry<String, Float> mapping1, Map.Entry<String, Float> mapping2) {
+                return mapping1.getValue().compareTo(mapping2.getValue());
+            }
+        });
+        System.out.println("Closest to : " + word + " is:");
+        for (Map.Entry<String, Float> item : zh_list) {
+        	System.out.println("[" + item.getKey() + ", " + item.getValue() + "]");
+        }
+        System.out.println("--------------------------------");
+	}
+	
+	public Float cos_dist(List<Float> a, List<Float> b) {
+		double dotProduct = 0.0;
+		double normA = 0.0;
+		double normB = 0.0;
+	    for (int i = 0; i < a.size(); i++) {
+	        dotProduct += a.get(i) * b.get(i);
+	        normA += Math.pow(a.get(i), 2);
+	        normB += Math.pow(b.get(i), 2);
+	    }   
+	    return new Float(dotProduct / (Math.sqrt(normA) * Math.sqrt(normB)));
 	}
 	
 	public static Double score(List<Float> vec1, List<Float> vec2, double[] coeffs) {
