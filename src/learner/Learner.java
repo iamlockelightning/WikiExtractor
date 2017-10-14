@@ -42,11 +42,11 @@ public class Learner {
 		
 //		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
 		
-//		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/word.emb");
+		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/word.emb");
 		
-//		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/word.emb", 2);
+		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/word.emb", 2);
 		
-		learner.testEmb("../PTEforHNE/workspace/word.emb");
+//		learner.testEmb("../PTEforHNE/workspace/word.emb");
 	}
 	
 	public void testFilter(String all_words_node, String cl_test_file, int cl_test_num) throws Exception {
@@ -354,7 +354,8 @@ public class Learner {
         // 通过比较器实现比较排序
         Collections.sort(zh_list, new Comparator<Map.Entry<String, Float>>() {
             public int compare(Map.Entry<String, Float> mapping1, Map.Entry<String, Float> mapping2) {
-                return mapping1.getValue().compareTo(mapping2.getValue());
+//                return mapping1.getValue().compareTo(mapping2.getValue()); // 123
+                return mapping2.getValue().compareTo(mapping1.getValue()); // 321
             }
         });
         int cnt = 10;
