@@ -26,8 +26,8 @@ public class PreProcess {
 //		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.json", "./etc/zh_pages.json");
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
-//		pp.getText("./etc/en_pages.json", "en");
-//		pp.getText("./etc/zh_pages.json", "zh");
+		pp.getText("./etc/en_pages.json", "en");
+		pp.getText("./etc/zh_pages.json", "zh");
 		
 //		pp.genTrainData("./etc/cl.train.40000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
@@ -365,7 +365,7 @@ public class PreProcess {
 					article = article.replace(el, "");
 				}
 	    		
-	    		article = article.replaceAll( "[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]" , "").replaceAll("\\s+", " ").trim();
+	    		article = article.replaceAll( "[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]" , "").replaceAll( "\\d+" , " ").replaceAll("\\s+", " ").trim();
 	    		List<Term> words = segment.seg(article);
 	    		List<String> words2article = new ArrayList<String>();
 	    		for (Term word : words) {
