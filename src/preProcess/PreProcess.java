@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
@@ -26,13 +27,13 @@ public class PreProcess {
 //		pp.getAllCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.json", "./etc/zh_pages.json");
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
-		pp.getText("./etc/en_pages.json", "en");
+//		pp.getText("./etc/en_pages.json", "en");
 		pp.getText("./etc/zh_pages.json", "zh");
 		
 //		pp.genTrainData("./etc/cl.train.40000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
-//		pp.genTextualNetPTEInput("./etc/enwiki.40000.text", "en");
-//		pp.genTextualNetPTEInput("./etc/zhwiki.40000.text", "zh");
+//		pp.genTextualNetPTEInput("./etc/enwiki.40000.text", "en", 5);
+//		pp.genTextualNetPTEInput("./etc/zhwiki.40000.text", "zh", 5);
 		
 //		pp.genLinkageNet("./etc/enwiki.40000.text", "en");
 //		pp.genLinkageNet("./etc/zhwiki.40000.text", "zh");
@@ -204,25 +205,57 @@ public class PreProcess {
 		bufferedWriter.close();
 	}
 	
-	public void genTextualNetPTEInput(String text_file, String lang) throws Exception {
+	public void genTextualNetPTEInput(String text_file, String lang, int min_count) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
-		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_40000_all.txt")));
-		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_40000_all.txt")));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_40000.txt")));
+		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_40000.txt")));
+		Map<String, Integer> freq_dict = new HashedMap<String, Integer>();
 		String line = new String();
+        while (null != (line = bufferedReader.readLine())) {
+            String words[] = line.split("\t\t")[1].split("||")[0].split(" ");
+            for (String w : words) {
+            	if (freq_dict.containsKey(w)) {
+            		freq_dict.put(w, 1);
+            	} else {
+            		freq_dict.put(w, freq_dict.get(w)+1);
+            	}
+            }
+        }
+        System.out.println("Total words num: " + freq_dict.size());
+		
+        bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
+		line = new String();
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
             bufferedWriter_title.write("e_"+lang+"_" + words[0] + "\n");
             String[] w_e = words[1].split("\\|\\|\\|");
-            String a = new String(), b = new String();
+            List<String> text_word = new ArrayList<String>();
+            if (w_e[0].length()>0) {
+            	String[] tmp_w = w_e[0].split(" ");
+            	for (String w : tmp_w) {
+            		if (freq_dict.get(w) >= min_count) {
+            			text_word.add(w);
+            		}
+            	}
+            }
+            String a = StringUtils.join(text_word, " ");
             if (w_e[0].length()>0) {
             	a = "w_"+lang+"_" + w_e[0].replace(" ", " w_"+lang+"_");
             }
             if (w_e.length > 1) {
 	            if (w_e[1].length()>0) {
-	            	b = "e_"+lang+"_" + w_e[1].replace(" ", " e_"+lang+"_");
+	            	Set<String> bb = new HashSet<String>();
+	            	for (String en : w_e[1].split(" ")) {
+	            		if (freq_dict.containsKey(en) && freq_dict.get(en) >= min_count) {
+	            			bb.add(en);
+	            		}
+	                }
+	            	for (String en : bb) {
+	            		a = a.replace("w_"+lang+"_"+en, "e_"+lang+"_"+en);
+	            	}
 	            }
             }
-            bufferedWriter_text.write((a + " " + b).trim() + "\n");
+            bufferedWriter_text.write(a.trim() + "\n");
         }
         bufferedReader.close();
         bufferedWriter_text.close();
@@ -365,7 +398,7 @@ public class PreProcess {
 					article = article.replace(el, "");
 				}
 	    		
-	    		article = article.replaceAll( "[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]" , "").replaceAll( "\\d+" , " ").replaceAll("\\s+", " ").trim();
+	    		article = article.replaceAll( "[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]" , "").replaceAll( "\\d+" , " ").replaceAll( "[a-zA-Z]+" , " ").replaceAll("\\s+", " ").trim();
 	    		List<Term> words = segment.seg(article);
 	    		List<String> words2article = new ArrayList<String>();
 	    		for (Term word : words) {
