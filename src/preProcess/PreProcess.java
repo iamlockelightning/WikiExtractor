@@ -28,12 +28,12 @@ public class PreProcess {
 //		pp.getMatchedCLEntities("./etc/en_zh_cl_id_title.txt", "./etc/en_pages.cl.json", "./etc/zh_pages.cl.json");
 		
 //		pp.getText("./etc/en_pages.json", "en");
-		pp.getText("./etc/zh_pages.json", "zh");
+//		pp.getText("./etc/zh_pages.json", "zh");
 		
 //		pp.genTrainData("./etc/cl.train.40000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
-//		pp.genTextualNetPTEInput("./etc/enwiki.40000.text", "en", 5);
-//		pp.genTextualNetPTEInput("./etc/zhwiki.40000.text", "zh", 5);
+		pp.genTextualNetPTEInput("./etc/enwiki.text", "en", 5);
+//		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh", 5);
 		
 //		pp.genLinkageNet("./etc/enwiki.40000.text", "en");
 //		pp.genLinkageNet("./etc/zhwiki.40000.text", "zh");
@@ -207,14 +207,14 @@ public class PreProcess {
 	
 	public void genTextualNetPTEInput(String text_file, String lang, int min_count) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
-		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_40000.txt")));
-		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_40000.txt")));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_all.txt")));
+		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_all.txt")));
 		Map<String, Integer> freq_dict = new HashedMap<String, Integer>();
 		String line = new String();
         while (null != (line = bufferedReader.readLine())) {
-            String words[] = line.split("\t\t")[1].split("||")[0].split(" ");
+            String words[] = line.split("\t\t")[1].split("\\|\\|")[0].split(" ");
             for (String w : words) {
-            	if (freq_dict.containsKey(w)) {
+            	if (!freq_dict.containsKey(w)) {
             		freq_dict.put(w, 1);
             	} else {
             		freq_dict.put(w, freq_dict.get(w)+1);
@@ -227,35 +227,35 @@ public class PreProcess {
 		line = new String();
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t");
-            bufferedWriter_title.write("e_"+lang+"_" + words[0] + "\n");
             String[] w_e = words[1].split("\\|\\|\\|");
             List<String> text_word = new ArrayList<String>();
+            Set<String> bb = new HashSet<String>();
+            if (w_e.length > 1) {
+	            if (w_e[1].length()>0) {
+	            	for (String en : w_e[1].split(" ")) {
+	            		if (freq_dict.containsKey(en)) {
+	            			bb.add(en);
+	            		}
+	                }
+	            }
+            }
             if (w_e[0].length()>0) {
             	String[] tmp_w = w_e[0].split(" ");
             	for (String w : tmp_w) {
             		if (freq_dict.get(w) >= min_count) {
-            			text_word.add(w);
+            			if (bb.contains(w)) {
+            				text_word.add("e_"+lang+"_"+w);
+            			} else {
+            				text_word.add("w_"+lang+"_"+w);
+            			}
             		}
             	}
             }
-            String a = StringUtils.join(text_word, " ");
-            if (w_e[0].length()>0) {
-            	a = "w_"+lang+"_" + w_e[0].replace(" ", " w_"+lang+"_");
+            String pure_text = StringUtils.join(text_word, " ").trim();
+            if (pure_text.equals("") == false) {
+            	bufferedWriter_title.write("e_"+lang+"_" + words[0] + "\n");
+            	bufferedWriter_text.write(pure_text + "\n");
             }
-            if (w_e.length > 1) {
-	            if (w_e[1].length()>0) {
-	            	Set<String> bb = new HashSet<String>();
-	            	for (String en : w_e[1].split(" ")) {
-	            		if (freq_dict.containsKey(en) && freq_dict.get(en) >= min_count) {
-	            			bb.add(en);
-	            		}
-	                }
-	            	for (String en : bb) {
-	            		a = a.replace("w_"+lang+"_"+en, "e_"+lang+"_"+en);
-	            	}
-	            }
-            }
-            bufferedWriter_text.write(a.trim() + "\n");
         }
         bufferedReader.close();
         bufferedWriter_text.close();
