@@ -32,11 +32,11 @@ public class PreProcess {
 		
 //		pp.genTrainData("./etc/cl.train.40000.net", "./etc/enwiki_zhwiki_cl.txt", "./etc/enwiki.text", "./etc/zhwiki.text");
 		
-		pp.genTextualNetPTEInput("./etc/enwiki.text", "en", 5);
+//		pp.genTextualNetPTEInput("./etc/enwiki.text", "en", 5);
 //		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh", 5);
 		
-//		pp.genLinkageNet("./etc/enwiki.40000.text", "en");
-//		pp.genLinkageNet("./etc/zhwiki.40000.text", "zh");
+		pp.genLinkageNet("./etc/enwiki.text", "en");
+		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
 //		pp.genCL("./etc/en_zh_cl_titleid.txt", "./etc/en_title_all.txt", "./etc/zh_title_all.txt");
 //		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 40000, 4, 3000);
@@ -214,11 +214,14 @@ public class PreProcess {
         while (null != (line = bufferedReader.readLine())) {
             String words[] = line.split("\t\t")[1].split("\\|\\|")[0].split(" ");
             for (String w : words) {
-            	if (!freq_dict.containsKey(w)) {
-            		freq_dict.put(w, 1);
-            	} else {
-            		freq_dict.put(w, freq_dict.get(w)+1);
-            	}
+            	if (lang.equals("zh") && w.matches("[\u4e00-\u9fa5]+")==false) {
+		            continue;
+		        }
+        		if (!freq_dict.containsKey(w)) {
+        			freq_dict.put(w, 1);
+        		} else {
+        			freq_dict.put(w, freq_dict.get(w)+1);
+        		}
             }
         }
         System.out.println("Total words num: " + freq_dict.size());
@@ -242,7 +245,7 @@ public class PreProcess {
             if (w_e[0].length()>0) {
             	String[] tmp_w = w_e[0].split(" ");
             	for (String w : tmp_w) {
-            		if (freq_dict.get(w) >= min_count) {
+            		if (freq_dict.containsKey(w) && freq_dict.get(w) >= min_count) {
             			if (bb.contains(w)) {
             				text_word.add("e_"+lang+"_"+w);
             			} else {
@@ -264,27 +267,36 @@ public class PreProcess {
 	
 	public void genLinkageNet(String text_file, String lang) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
-		BufferedWriter bufferedWriter_net = new BufferedWriter(new FileWriter(new File(lang + ".linkage.40000.net")));
+		BufferedWriter bufferedWriter_net = new BufferedWriter(new FileWriter(new File(lang + ".linkage.net")));
+		Set<String> title_set = new HashSet<String>();
 		String line = new String();
         while (null != (line = bufferedReader.readLine())) {
-            String words[] = line.split("\t\t");
-            String start = "e_"+lang+"_" + words[0];
-            Map<String, Integer> target = new HashMap<String, Integer>();
+        	title_set.add(line.split("\t\t")[0]);
+        }
+        System.out.println("Total titles num: " + title_set.size());
+		
+        bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
+		line = new String();
+        while (null != (line = bufferedReader.readLine())) {
+        	String words[] = line.split("\t\t");
             String[] w_e = words[1].split("\\|\\|\\|");
-            if (w_e.length>1) {
+            Map<String, Integer> target = new HashMap<String, Integer>();
+            if (w_e.length > 1) {
 	            if (w_e[1].length()>0) {
-	            	for (String s : w_e[1].split(" ")) {
-	            		String e = "e_"+lang+"_" + s;
-	            		if (target.containsKey(e)) {
-	            			target.put(e, target.get(e)+1);
-	            		} else {
-	            			target.put(e, 1);
+	            	for (String en : w_e[1].split(" ")) {
+	            		if (title_set.contains(en)) {
+	            			if (target.containsKey(en)) {
+	            				target.put(en, target.get(en)+1);
+	            			} else {
+	            				target.put(en, 1);
+	            			}
 	            		}
-	            	}
+	                }
 	            }
-	            for (String k : target.keySet()) {
-	            	bufferedWriter_net.write(start + "\t" + k + "\t" + target.get(k) + "\tl" + "\n");
-	            }
+            }
+            String start = "e_"+lang+"_" + words[0];
+            for (String k : target.keySet()) {
+            	bufferedWriter_net.write(start + "\t" + k + "\t" + target.get(k) + "\tl" + "\n");
             }
         }
         bufferedReader.close();
