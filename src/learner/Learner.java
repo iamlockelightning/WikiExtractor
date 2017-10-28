@@ -40,11 +40,11 @@ public class Learner {
 	
 		Learner learner = new Learner();
 		
-//		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
+		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
 		
-		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/word.emb");
+//		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/word.emb");
 		
-		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/word.emb", 2);
+//		learner.trainTest("./3000fold5/", 5, "../PTEforHNE/workspace/word.emb", 2);
 		
 //		learner.testEmb("../PTEforHNE/workspace/word.emb");
 	}
@@ -157,7 +157,7 @@ public class Learner {
 						data_line.append((Math.abs(emb_dict.get(hs.get(t)).get(ii) - emb_dict.get(es.get(t)).get(ii)) - 
 								Math.abs(emb_dict.get(hs.get(t)).get(ii) - emb_dict.get(es.get(j)).get(ii))) + ",");
 					}
-					bufferedWriter_train.write(data_line.toString() + (1-Math.random()) + "\n"); // "1\n"
+					bufferedWriter_train.write(data_line.toString() + "1\n"); // "1\n"
 				}
 			}
 			bufferedWriter_train.close();
