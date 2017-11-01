@@ -296,7 +296,7 @@ public class PreProcess {
             }
             String start = "e_"+lang+"_" + words[0];
             for (String k : target.keySet()) {
-            	bufferedWriter_net.write(start + "\t" + k + "\t" + target.get(k) + "\tl" + "\n");
+            	bufferedWriter_net.write(start + "\t" + "e_"+lang+"_"+k + "\t" + target.get(k) + "\tl" + "\n");
             }
         }
         bufferedReader.close();

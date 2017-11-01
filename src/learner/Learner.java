@@ -40,7 +40,7 @@ public class Learner {
 	
 		Learner learner = new Learner();
 		
-		learner.testFilter("../PTEforHNE/workspace/all.words.node", "./cl.test.net", 3000);
+		learner.testFilter("../PTEforHNE/workspace/new.all.words.node", "./cl.test.net", 10000);
 		
 //		learner.genCrossValidationFolds("./cl.test.3000.L", 5, "../PTEforHNE/workspace/word.emb");
 		
@@ -59,7 +59,7 @@ public class Learner {
 			}
         }
 		bufferedReader_all.close();
-		System.out.println("en_set.size():" + en_set.size());
+		System.out.println("em_set.size():" + en_set.size());
 		
 		BufferedReader bufferedReader_cl = new BufferedReader(new FileReader(new File(cl_test_file)));
 		List<String> cl_list = new ArrayList<String>();
