@@ -351,27 +351,36 @@ public class PreProcess {
 					} else {
 						n_el = "e_en_"+el.substring(2, el.length()-2).replace(" ", "_");
 					}
-					article = article.replace(el, n_el);
+					article = article.replace(el, "[__]"+n_el+"[__]");
 					entity_links.add(n_el);
 				}
 
-				article = article.replaceAll("[^_a-zA-Z0-9\u4e00-\u9fa5]+", " ").replaceAll("\\s+", " ").trim();
-
-				String[] words = article.split(" ");
+				String tmp_spl[] = article.split("\\[__\\]");
 				List<String> words2article = new ArrayList<String>();
-				for (String word : words) {
-					if (stopwords.contains(word) || word.length() < 2 || !StringUtils.isAlphaSpace(word)) {
-						continue;
-					}
-					if (word.startsWith("e_en_")) {
-						words2article.add(word);
+				for (String s : tmp_spl) {
+					if (s.startsWith("e_en_")) {
+						words2article.add(s);
 					} else {
-						stemmer.setCurrent(word);
-						if (stemmer.stem()==false){ continue;	}
-						words2article.add("w_en_"+stemmer.getCurrent());
+						String tmp_s = s.replaceAll("[^_a-zA-Z0-9\u4e00-\u9fa5]+", " ").replaceAll("\\s+", " ").trim();
+						if (tmp_s.length() >= 2) {
+							String[] words = tmp_s.split(" ");
+							for (String word : words) {
+								if (stopwords.contains(word) || word.length() < 2 || !StringUtils.isAlphaSpace(word)) {
+									continue;
+								} else {
+									if (word.equals(title)) {
+										words2article.add("e_en_"+word);
+									} else {
+										stemmer.setCurrent(word);
+										if (stemmer.stem()==false){ continue;	}
+										words2article.add("w_en_"+stemmer.getCurrent());
+									}
+								}
+							}
+						}
 					}
 				}
-					
+				
 				article = StringUtils.join(words2article, " ").replaceAll("\\s+", " ").trim();
 				if (article.equals("")==false) {
 					bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
@@ -426,7 +435,11 @@ public class PreProcess {
 								if (stopwords.contains(word.word) || word.word.length() < 2) {
 									continue;
 								} else {
-									words2article.add("w_zh_"+word.word);
+									if (word.word.equals(title)) {
+										words2article.add("e_zh_"+word.word);
+									} else {
+										words2article.add("w_zh_"+word.word);
+									}
 								}
 							}
 						}
