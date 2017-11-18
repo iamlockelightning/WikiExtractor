@@ -43,8 +43,10 @@ public class PreProcess {
 		
 		
 		
+		// added 1118
+//		pp.getNewText("./etc/en_pages.json", "en");
 		
-		pp.getNewText("./etc/en_pages.json", "en");
+		pp.genNewTextualNetandLinkageNet("./etc/enwiki.text", "en", 5);
 		
 	}
 	
@@ -310,6 +312,73 @@ public class PreProcess {
 	}
 	
 	// added 1118
+	public void genNewTextualNetandLinkageNet(String text_file, String lang, int min_count) throws Exception {
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_all.txt")));
+		BufferedWriter bufferedWriter_title = new BufferedWriter(new FileWriter(new File(lang + "_title_all.txt")));
+		BufferedWriter bufferedWriter_linkage = new BufferedWriter(new FileWriter(new File(lang + ".linkage.net")));
+		Set<String> title_set = new HashSet<String>();
+		Map<String, Integer> freq_dict = new HashedMap<String, Integer>();
+		
+		String line = new String();
+		while (null != (line = bufferedReader.readLine())) {
+			title_set.add("e_"+lang+"_"+line.split("\t\t")[0]);
+			String words[] = line.split("\t\t")[1].split("\\|\\|")[0].split(" ");
+			for (String w : words) {
+				if (lang.equals("zh") && w.matches("[\u4e00-\u9fa5]+")==false) {
+					continue;
+				}
+				if (!freq_dict.containsKey(w)) {
+					freq_dict.put(w, 1);
+				} else {
+					freq_dict.put(w, freq_dict.get(w)+1);
+				}
+			}
+		}
+		System.out.println("Total words num: " + freq_dict.size());
+		
+		bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
+		line = new String();
+		while (null != (line = bufferedReader.readLine())) {
+			String words[] = line.split("\t\t");
+			String[] w_e = words[1].split("\\|\\|\\|");
+			List<String> text_word = new ArrayList<String>();
+			Map<String, Integer> link_dict = new HashedMap<String, Integer>();
+			if (w_e.length > 1) {
+				if (w_e[1].length()>0) {
+					for (String en : w_e[1].split(" ")) {
+						if (title_set.contains(en)) {
+							if (link_dict.containsKey(en)) {
+								link_dict.put(en, link_dict.get(en)+1);
+							} else {
+								link_dict.put(en, 1);
+							}
+						}
+					}
+				}
+			}
+			if (w_e[0].length()>0) {
+				String[] tmp_w = w_e[0].split(" ");
+				for (String w : tmp_w) {
+					if (freq_dict.containsKey(w) && freq_dict.get(w) >= min_count) {
+						text_word.add(w);
+					}
+				}
+			}
+			String pure_text = StringUtils.join(text_word, " ").trim();
+			if (pure_text.equals("") == false) {
+				bufferedWriter_title.write("e_"+lang+"_" + words[0] + "\n");
+				bufferedWriter_text.write(pure_text + "\n");
+				for (String k : link_dict.keySet()) {
+	            	bufferedWriter_linkage.write("e_"+lang+"_"+words[0] + "\t" + k + "\t" + link_dict.get(k) + "\tl" + "\n");
+	            }
+			}
+		}
+		bufferedReader.close();
+		bufferedWriter_text.close();
+		bufferedWriter_title.close();
+		bufferedWriter_linkage.close();
+	}
 	public void getNewText(String pages, String lang) throws Exception {
 		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
 		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "wiki.text")));
@@ -337,13 +406,13 @@ public class PreProcess {
 				for (String w : filter_words) { if (title.contains(w.toLowerCase())) { contains = true; break;	}	}
 				if (contains) { continue;	}
 				
-				Set<String> links = new HashSet<String>();
+				List<String> links = new ArrayList<String>();
 				Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
 				while (matcher.find()) {
 					links.add(matcher.group(0));
 				}
 
-				Set<String> entity_links = new HashSet<String>();
+				List<String> entity_links = new ArrayList<String>();
 				for (String el : links) {
 					String n_el;
 					if (el.contains("|")) {
@@ -404,13 +473,13 @@ public class PreProcess {
 				if (contains) { continue;	}
 
 
-				Set<String> links = new HashSet<String>();
+				List<String> links = new ArrayList<String>();
 				Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
 				while (matcher.find()) {
 					links.add(matcher.group(0));
 				}
 
-				Set<String> entity_links = new HashSet<String>();
+				List<String> entity_links = new ArrayList<String>();
 				for (String el : links) {
 					String n_el;
 					if (el.contains("|")) {
