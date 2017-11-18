@@ -35,11 +35,17 @@ public class PreProcess {
 //		pp.genTextualNetPTEInput("./etc/enwiki.text", "en", 5);
 //		pp.genTextualNetPTEInput("./etc/zhwiki.text", "zh", 5);
 		
-		pp.genLinkageNet("./etc/enwiki.text", "en");
-		pp.genLinkageNet("./etc/zhwiki.text", "zh");
+//		pp.genLinkageNet("./etc/enwiki.text", "en");
+//		pp.genLinkageNet("./etc/zhwiki.text", "zh");
 		
 //		pp.genCL("./etc/en_zh_cl_titleid.txt", "./etc/en_title_all.txt", "./etc/zh_title_all.txt");
 //		pp.sampleCL("./etc/enwiki_zhwiki_cl.txt", 40000, 4, 3000);
+		
+		
+		
+		
+		pp.getNewText("./etc/en_pages.json", "en");
+		
 	}
 	
 	public void genTrainData(String cl_train, String cl_all, String en_wiki_text, String zh_wiki_text) throws Exception {
@@ -302,6 +308,142 @@ public class PreProcess {
         bufferedReader.close();
         bufferedWriter_net.close();
 	}
+	
+	// added 1118
+	public void getNewText(String pages, String lang) throws Exception {
+		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
+		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "wiki.text")));
+		
+		String line = null;
+		Set<String> stopwords = new HashSet<String>();
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("./"+ lang +"_stopwords.txt")));
+		
+		while (null != (line = bufferedReader.readLine())) {
+			stopwords.add(line.trim());
+		}
+
+		bufferedReader.close();
+		englishStemmer stemmer = new englishStemmer();
+		String[] filter_words = {"wikipedia:", "wikiprojects", "lists", "mediawiki", "template:", "user:", "portal:", "category:", "categories:", "file:", "help:", "image:", "module:", "articles", "extension:", "manual:"};
+
+		if (lang.equals("en")) {
+			line = null;
+			while (null != (line = bufferedReader_pages.readLine())) {
+				JSONObject page = new JSONObject(line);
+				String title = page.getString("title").toLowerCase();
+				String article = page.getString("article").toLowerCase();
+
+				boolean contains = false;
+				for (String w : filter_words) { if (title.contains(w.toLowerCase())) { contains = true; break;	}	}
+				if (contains) { continue;	}
+				
+				Set<String> links = new HashSet<String>();
+				Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
+				while (matcher.find()) {
+					links.add(matcher.group(0));
+				}
+
+				Set<String> entity_links = new HashSet<String>();
+				for (String el : links) {
+					String n_el;
+					if (el.contains("|")) {
+						n_el = "e_en_"+el.substring(2, el.indexOf("|")).replace(" ", "_");
+					} else {
+						n_el = "e_en_"+el.substring(2, el.length()-2).replace(" ", "_");
+					}
+					article = article.replace(el, n_el);
+					entity_links.add(n_el);
+				}
+
+				article = article.replaceAll("[^_a-zA-Z0-9\u4e00-\u9fa5]+", " ").replaceAll("\\s+", " ").trim();
+
+				String[] words = article.split(" ");
+				List<String> words2article = new ArrayList<String>();
+				for (String word : words) {
+					if (stopwords.contains(word) || word.length() < 2 || !StringUtils.isAlphaSpace(word)) {
+						continue;
+					}
+					if (word.startsWith("e_en_")) {
+						words2article.add(word);
+					} else {
+						stemmer.setCurrent(word);
+						if (stemmer.stem()==false){ continue;	}
+						words2article.add("w_en_"+stemmer.getCurrent());
+					}
+				}
+					
+				article = StringUtils.join(words2article, " ").replaceAll("\\s+", " ").trim();
+				if (article.equals("")==false) {
+					bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+				}
+			}
+		} else {
+			Segment segment = HanLP.newSegment();
+			segment.enableNameRecognize(true);
+			segment.enableOrganizationRecognize(true);
+			segment.enablePlaceRecognize(true);
+			segment.enableTranslatedNameRecognize(true);
+			line = null;
+				
+			while (null != (line = bufferedReader_pages.readLine())) {
+				JSONObject page = new JSONObject(line);
+				String title = page.getString("title").toLowerCase();
+				String article = page.getString("article").toLowerCase();
+				
+				boolean contains = false;
+				for (String w : filter_words) { if (title.contains(w.toLowerCase())) { contains = true; break;	}	}
+				if (contains) { continue;	}
+
+
+				Set<String> links = new HashSet<String>();
+				Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(article);
+				while (matcher.find()) {
+					links.add(matcher.group(0));
+				}
+
+				Set<String> entity_links = new HashSet<String>();
+				for (String el : links) {
+					String n_el;
+					if (el.contains("|")) {
+						n_el = "e_zh_"+el.substring(2, el.indexOf("|")).replace(" ", "_");
+					} else {
+						n_el = "e_zh_"+el.substring(2, el.length()-2).replace(" ", "_");
+					}
+					article = article.replace(el, "[__]"+n_el+"[__]");
+					entity_links.add(n_el);
+				}
+				
+				String tmp_spl[] = article.split("\\[__\\]");
+				List<String> words2article = new ArrayList<String>();
+				for (String s : tmp_spl) {
+					if (s.startsWith("e_zh_")) {
+						words2article.add(s);
+					} else {
+						String tmp_s = s.replaceAll("[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]", "").replaceAll("\\d+" , "").replaceAll("[a-zA-Z]+" , "").replaceAll("\\s+", "").trim();
+						if (tmp_s.length() >= 2) {
+							List<Term> words = segment.seg(tmp_s);
+							for (Term word : words) {
+								if (stopwords.contains(word.word) || word.word.length() < 2) {
+									continue;
+								} else {
+									words2article.add("w_zh_"+word.word);
+								}
+							}
+						}
+					}
+				}
+					
+				article = StringUtils.join(words2article, " ").replaceAll("\\s+", " ").trim();
+				if (article.equals("")==false) {
+					bufferedWriter_text.write(title.replace(" ", "_") + "\t\t" + article+"|||"+StringUtils.join(entity_links, " ") + "\n");
+				}
+			}
+		}
+		bufferedReader_pages.close();
+		bufferedWriter_text.close();
+	}
+	
+	
 	
 	public void getText(String pages, String lang) throws Exception {
 		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
