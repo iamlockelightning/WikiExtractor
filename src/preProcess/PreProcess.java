@@ -46,8 +46,9 @@ public class PreProcess {
 		// added 1118
 //		pp.getNewText("./etc/en_pages.json", "en");
 		
-		pp.genNewTextualNetandLinkageNet("./etc/enwiki.text", "en", 5);
+//		pp.genNewTextualNetandLinkageNet("./etc/enwiki.text", "en", 5);
 		
+		pp.getTriples("./etc/en_pages.json", "en");
 	}
 	
 	public void genTrainData(String cl_train, String cl_all, String en_wiki_text, String zh_wiki_text) throws Exception {
@@ -312,6 +313,84 @@ public class PreProcess {
 	}
 	
 	// added 1118
+	public void getTriples(String pages, String lang) throws Exception {
+		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
+		BufferedWriter bufferedWriter_seman = new BufferedWriter(new FileWriter(new File(lang + "semantic.net")));
+		englishStemmer stemmer = new englishStemmer();
+		Segment segment = HanLP.newSegment();
+		segment.enableNameRecognize(true);
+		segment.enableOrganizationRecognize(true);
+		segment.enablePlaceRecognize(true);
+		segment.enableTranslatedNameRecognize(true);
+		BufferedReader bufferedReader_title = new BufferedReader(new FileReader(new File(pages.replace("_pages.json", "_title_all.txt"))));
+		String line = null;
+		Set<String> entities = new HashSet<String>();
+		while (null != (line = bufferedReader_title.readLine())) {
+			entities.add(line.trim());
+		}
+
+		line = null;
+		while (null != (line = bufferedReader_pages.readLine())) {
+			JSONObject page = new JSONObject(line);
+			String title = "e_"+lang+"_"+page.getString("title").toLowerCase();
+			if (entities.contains(title)==false) {
+				continue;
+			}
+			JSONObject infobox = page.getJSONObject("infobox");
+
+			for (String k : infobox.keySet()) {
+				String val = infobox.getString(k);
+				Set<String> attr_vals = new HashSet<String>();
+
+				List<String> links = new ArrayList<String>();
+				Matcher matcher = Pattern.compile("\\[\\[(.*?)\\]\\]").matcher(val);
+				while (matcher.find()) {
+					links.add(matcher.group(0));
+				}
+				for (String el : links) {
+					String n_el;
+					if (el.contains("|")) {
+						n_el = "e_"+lang+"_"+el.substring(2, el.indexOf("|")).replace(" ", "_");
+					} else {
+						n_el = "e_"+lang+"_"+el.substring(2, el.length()-2).replace(" ", "_");
+					}
+					attr_vals.add(n_el);
+					val = val.replace(el, " ").replaceAll("\\s+", " ").trim();
+				}
+
+				if (val.equals("")==false) {
+					if (lang.equals("en")) {
+						String tmp_spl[] = val.split(" ");
+						for (String word : tmp_spl) {
+							if (!StringUtils.isAlphaSpace(word)) {
+								attr_vals.add("w_xx_"+word);
+							} else {
+								stemmer.setCurrent(word);
+								if (stemmer.stem()==false){ continue;	}
+								attr_vals.add("w_"+lang+"_"+stemmer.getCurrent());
+							}
+						}
+					} else {
+						List<Term> its = segment.seg(val);
+						for (Term word : its) {
+							if (word.word.matches("[\u4e00-\u9fa5]+")==false) {
+								attr_vals.add("w_xx_"+word.word);
+							} else {
+								attr_vals.add("w_"+lang+"_"+word.word);
+							}
+						}
+					}
+				}
+
+				for (String w : attr_vals) {
+					bufferedWriter_seman.write(title + "\t" + k + "\t" + w + "\ts\n");
+				}
+			}
+		}
+		bufferedReader_title.close();
+		bufferedReader_pages.close();
+		bufferedWriter_seman.close();
+	}
 	public void genNewTextualNetandLinkageNet(String text_file, String lang, int min_count) throws Exception {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(text_file)));
 		BufferedWriter bufferedWriter_text = new BufferedWriter(new FileWriter(new File(lang + "_text_all.txt")));
