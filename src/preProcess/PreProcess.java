@@ -315,7 +315,7 @@ public class PreProcess {
 	// added 1118
 	public void getTriples(String pages, String lang, int limit) throws Exception {
 		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
-		BufferedWriter bufferedWriter_seman = new BufferedWriter(new FileWriter(new File(lang + "semantic.net")));
+		BufferedWriter bufferedWriter_seman = new BufferedWriter(new FileWriter(new File(lang + ".semantic.net")));
 		englishStemmer stemmer = new englishStemmer();
 		Segment segment = HanLP.newSegment();
 		segment.enableNameRecognize(true);
@@ -343,7 +343,21 @@ public class PreProcess {
 			}
 		}
 		System.out.println("len(attr_freq):" + attr_freq.size());
-		
+		BufferedWriter bufferedWriter_attr = new BufferedWriter(new FileWriter(new File(lang + ".attr_cnt.net")));
+		List<Map.Entry<String, Integer>> en_list = new ArrayList<Map.Entry<String, Integer>>(attr_freq.entrySet());
+        // 通过比较器实现比较排序
+        Collections.sort(en_list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> mapping1, Map.Entry<String, Integer> mapping2) {
+                return mapping2.getValue().compareTo(mapping1.getValue());
+            }
+        });
+        for (Map.Entry<String, Integer> s : en_list) {
+        	bufferedWriter_attr.write(s.getKey() + "\t" + s.getValue() + "\n");
+        }
+        bufferedWriter_attr.close();
+        System.out.println("Write out done");
+        
+        
 		line = null;
 		bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
 		while (null != (line = bufferedReader_pages.readLine())) {
