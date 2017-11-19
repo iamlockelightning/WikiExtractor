@@ -48,7 +48,7 @@ public class PreProcess {
 		
 //		pp.genNewTextualNetandLinkageNet("./etc/enwiki.text", "en", 5);
 		
-		pp.getTriples("./etc/en_pages.json", "en");
+		pp.getTriples("./etc/en_pages.json", "en", 100);
 	}
 	
 	public void genTrainData(String cl_train, String cl_all, String en_wiki_text, String zh_wiki_text) throws Exception {
@@ -313,7 +313,7 @@ public class PreProcess {
 	}
 	
 	// added 1118
-	public void getTriples(String pages, String lang) throws Exception {
+	public void getTriples(String pages, String lang, int limit) throws Exception {
 		BufferedReader bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
 		BufferedWriter bufferedWriter_seman = new BufferedWriter(new FileWriter(new File(lang + "semantic.net")));
 		englishStemmer stemmer = new englishStemmer();
@@ -328,8 +328,24 @@ public class PreProcess {
 		while (null != (line = bufferedReader_title.readLine())) {
 			entities.add(line.trim());
 		}
-
+		
+		Map<String, Integer> attr_freq = new HashMap<String, Integer>();
 		line = null;
+		while (null != (line = bufferedReader_pages.readLine())) {
+			JSONObject page = new JSONObject(line);
+			JSONObject infobox = page.getJSONObject("infobox");
+			for (String k : infobox.keySet()) {
+				if (attr_freq.containsKey(k)) {
+					attr_freq.put(k, attr_freq.get(k)+1);
+				} else {
+					attr_freq.put(k, 1);
+				}
+			}
+		}
+		System.out.println("len(attr_freq):" + attr_freq.size());
+		
+		line = null;
+		bufferedReader_pages = new BufferedReader(new FileReader(new File(pages)));
 		while (null != (line = bufferedReader_pages.readLine())) {
 			JSONObject page = new JSONObject(line);
 			String title = "e_"+lang+"_"+page.getString("title").toLowerCase();
@@ -339,6 +355,9 @@ public class PreProcess {
 			JSONObject infobox = page.getJSONObject("infobox");
 
 			for (String k : infobox.keySet()) {
+				if (attr_freq.get(k) < limit) {
+					continue;
+				}
 				String val = infobox.getString(k);
 				Set<String> attr_vals = new HashSet<String>();
 
@@ -383,7 +402,7 @@ public class PreProcess {
 				}
 
 				for (String w : attr_vals) {
-					bufferedWriter_seman.write(title + "\t" + k + "\t" + w + "\ts\n");
+					bufferedWriter_seman.write(title + "\t" + "r_"+lang+"_"+k + "\t" + w + "\ts\n");
 				}
 			}
 		}
