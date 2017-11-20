@@ -48,7 +48,7 @@ public class PreProcess {
 		
 //		pp.genNewTextualNetandLinkageNet("./etc/enwiki.text", "en", 5);
 		
-		pp.getTriples("./etc/en_pages.json", "en", 100);
+		pp.getTriples("./etc/zh_pages.json", "zh", 100);
 	}
 	
 	public void genTrainData(String cl_train, String cl_all, String en_wiki_text, String zh_wiki_text) throws Exception {
@@ -335,6 +335,7 @@ public class PreProcess {
 			JSONObject page = new JSONObject(line);
 			JSONObject infobox = page.getJSONObject("infobox");
 			for (String k : infobox.keySet()) {
+				k = HanLP.convertToSimplifiedChinese(k);
 				if (attr_freq.containsKey(k)) {
 					attr_freq.put(k, attr_freq.get(k)+1);
 				} else {
@@ -369,10 +370,11 @@ public class PreProcess {
 			JSONObject infobox = page.getJSONObject("infobox");
 
 			for (String k : infobox.keySet()) {
+				k = HanLP.convertToSimplifiedChinese(k);
 				if (attr_freq.get(k) < limit) {
 					continue;
 				}
-				String val = infobox.getString(k);
+				String val = HanLP.convertToSimplifiedChinese(infobox.getString(k));
 				Set<String> attr_vals = new HashSet<String>();
 
 				List<String> links = new ArrayList<String>();
